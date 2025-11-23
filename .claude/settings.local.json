@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(npm run deploy:*)",
+      "Bash(npx wrangler pages project create:*)",
+      "Bash(npx wrangler pages deploy:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

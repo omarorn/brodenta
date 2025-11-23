@@ -1,0 +1,56 @@
+{
+  "name": "madenta-broforce",
+  "version": "1.0.0",
+  "description": "MADENTA: BROFORCE - The Tooth Cartel Saga | Dental action platformer featuring Dr. Dávid Farkas and the Madenta team",
+  "main": "public/game.js",
+  "scripts": {
+    "dev": "wrangler pages dev public --port 8788",
+    "deploy": "wrangler pages deploy public --project-name madenta-broforce",
+    "deploy:workers": "wrangler deploy workers/api.js --name madenta-api",
+    "build": "echo 'Static site - no build step required'",
+    "preview": "wrangler pages dev public",
+    "lint": "echo 'Linting game.js' && node --check public/game.js",
+    "test": "echo 'No tests yet - game testing is manual'"
+  },
+  "keywords": [
+    "game",
+    "broforce",
+    "dental",
+    "phaser3",
+    "cloudflare",
+    "madenta",
+    "2076-ehf",
+    "platformer",
+    "pixel-art"
+  ],
+  "author": {
+    "name": "2076 ehf",
+    "email": "omar@vertis.is",
+    "url": "https://omaromar.net"
+  },
+  "contributors": [
+    {
+      "name": "Dr. Dávid Farkas",
+      "url": "https://tandlogn.is"
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/2076-ehf/madenta-broforce.git"
+  },
+  "bugs": {
+    "url": "https://github.com/2076-ehf/madenta-broforce/issues"
+  },
+  "homepage": "https://madenta.2076.is",
+  "dependencies": {
+    "phaser": "^3.70.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

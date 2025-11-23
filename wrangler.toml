@@ -1,0 +1,47 @@
+name = "madenta-broforce"
+compatibility_date = "2024-11-01"
+
+# Main Pages configuration
+pages_build_output_dir = "public"
+
+# Environment variables
+[vars]
+GAME_VERSION = "1.0.0"
+DEPLOYMENT_ENVIRONMENT = "production"
+
+# Production environment for Workers API
+[env.production]
+name = "madenta-api"
+workers_dev = false
+
+# KV namespace for leaderboard and game state
+[[kv_namespaces]]
+binding = "LEADERBOARD"
+id = "placeholder_kv_id_replace_after_creation"
+preview_id = "placeholder_preview_kv_id"
+
+[[kv_namespaces]]
+binding = "GAME_STATE"
+id = "placeholder_game_state_kv_id"
+preview_id = "placeholder_preview_game_state_kv_id"
+
+# R2 bucket for sprite assets and level data
+[[r2_buckets]]
+binding = "GAME_ASSETS"
+bucket_name = "madenta-assets"
+preview_bucket_name = "madenta-assets-preview"
+
+# Durable Objects for multiplayer co-op
+[[durable_objects.bindings]]
+name = "MULTIPLAYER_SESSION"
+class_name = "MultiplayerSession"
+script_name = "madenta-api"
+
+# Rate limiting
+[limits]
+cpu_ms = 50
+
+# Custom domains (configure after deployment)
+# [route]
+# pattern = "madenta.2076.is/*"
+# custom_domain = true
