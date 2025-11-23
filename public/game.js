@@ -2,28 +2,6 @@
 // © 2076 ehf | Built with Phaser 3
 
 //═══════════════════════════════════════════════════════════════════════════
-// GAME CONFIGURATION
-//═══════════════════════════════════════════════════════════════════════════
-
-const GAME_CONFIG = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    parent: 'game-container',
-    backgroundColor: '#1a1a2e',
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 800 },
-            debug: false
-        }
-    },
-    scene: [BootScene, MenuScene, GameScene, CutsceneScene]
-};
-
-const game = new Phaser.Game(GAME_CONFIG);
-
-//═══════════════════════════════════════════════════════════════════════════
 // HERO DEFINITIONS
 //═══════════════════════════════════════════════════════════════════════════
 
@@ -1073,6 +1051,28 @@ class CutsceneScene extends Phaser.Scene {
         });
     }
 }
+
+//═══════════════════════════════════════════════════════════════════════════
+// GAME CONFIGURATION & INITIALIZATION
+//═══════════════════════════════════════════════════════════════════════════
+
+const GAME_CONFIG = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: 'game-container',
+    backgroundColor: '#1a1a2e',
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 800 },
+            debug: false
+        }
+    },
+    scene: [BootScene, MenuScene, GameScene, CutsceneScene]
+};
+
+const game = new Phaser.Game(GAME_CONFIG);
 
 //═══════════════════════════════════════════════════════════════════════════
 // GAME INITIALIZATION MESSAGE
