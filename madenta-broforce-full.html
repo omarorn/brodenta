@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MADENTA BROFORCE - The Tooth Cartel Conspiracy</title>
+    <meta name="description" content="Harcolj a korrupt fogorvosok és a gonosz tündérek ellen! / Berjast gegn spilltum tannlæknum og vondum álfum!">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #000;
+            font-family: 'Press Start 2P', monospace;
+            color: #fff;
+            overflow: hidden;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(180deg, #0a1f1a 0%, #000 100%);
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+        
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .hud-panel {
+            background: rgba(0,0,0,0.9);
+            border: 3px solid #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+        
+        .hud-label {
+            font-size: 10px;
+            color: #10b981;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .hud-value {
+            font-size: 18px;
+            color: #fff;
+            text-shadow: 2px 2px 0 #10b981;
+        }
+        
+        .health-bar {
+            width: 200px;
+            height: 24px;
+            background: #1a1a1a;
+            border: 3px solid #10b981;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.3s;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+        }
+        
+        /* Menu Overlay */
+        #menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.98), rgba(6, 95, 70, 0.98));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .menu-hidden { display: none !important; }
+        
+        .logo {
+            font-size: 48px;
+            color: #10b981;
+            text-shadow: 4px 4px 0 #000, 0 0 20px #10b981;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            color: #a7f3d0;
+            margin-bottom: 40px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        
+        .menu-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            border: none;
+            padding: 20px 50px;
+            font-family: inherit;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 0 8px 0 #064e3b, 0 12px 20px rgba(0,0,0,0.5);
+            transition: all 0.1s;
+            text-transform: uppercase;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 0 #064e3b, 0 14px 24px rgba(0,0,0,0.6);
+        }
+        
+        .menu-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #064e3b, 0 6px 10px rgba(0,0,0,0.4);
+        }
+        
+        /* Language Toggle */
+        #lang-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1001;
+        }
+        
+        .lang-btn {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10b981;
+            color: #10b981;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .lang-btn.active {
+            background: #10b981;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        /* Cutscene */
+        #cutscene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .cutscene-active { display: flex !important; }
+        
+        .cutscene-image {
+            width: 80%;
+            max-width: 800px;
+            height: 400px;
+            background: #1a1a1a;
+            border: 4px solid #10b981;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .cutscene-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .dialogue-box {
+            width: 80%;
+            max-width: 800px;
+            background: rgba(0,0,0,0.95);
+            border: 3px solid #10b981;
+            padding: 30px;
+            border-radius: 12px;
+        }
+        
+        .speaker {
+            font-size: 14px;
+            color: #10b981;
+            margin-bottom: 15px;
+        }
+        
+        .dialogue-text {
+            font-size: 12px;
+            line-height: 1.8;
+            color: #fff;
+        }
+        
+        .continue-btn {
+            background: #10b981;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-family: inherit;
+            font-size: 12px;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            float: right;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+        
+        /* Controls Info */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #10b981;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 10px;
+            color: #a7f3d0;
+            z-index: 50;
+        }
+        
+        /* Game Over */
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: none;
+            z-index: 900;
+        }
+        
+        .game-over-active { display: block !important; }
+        
+        .game-over-title {
+            font-size: 64px;
+            color: #ef4444;
+            text-shadow: 4px 4px 0 #000;
+            margin-bottom: 20px;
+            animation: shake 0.5s infinite;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .victory-title {
+            font-size: 64px;
+            color: #10b981;
+            text-shadow: 4px 4px 0 #000;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo { font-size: 32px; }
+            .subtitle { font-size: 10px; }
+            .menu-btn { font-size: 12px; padding: 15px 30px; }
+            .hud-label { font-size: 8px; }
+            .hud-value { font-size: 14px; }
+            .controls { font-size: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Language Toggle -->
+        <div id="lang-toggle">
+            <button class="lang-btn active" onclick="setLang('is')">🇮🇸 IS</button>
+            <button class="lang-btn" onclick="setLang('hu')">🇭🇺 HU</button>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="menu">
+            <div class="logo" id="game-title">MADENTA BROFORCE</div>
+            <div class="subtitle" id="game-subtitle">
+                Az All-on-4 akció játék<br>
+                Tannplanta bardagaleikurinn
+            </div>
+            <button class="menu-btn" onclick="startStory()">
+                <span id="btn-start">HEFJA LEIKINN / JÁTÉK INDÍTÁSA</span>
+            </button>
+            <button class="menu-btn" onclick="showControls()">
+                <span id="btn-controls">STJÓRNUN / IRÁNYÍTÁS</span>
+            </button>
+            <button class="menu-btn" onclick="showCredits()">
+                <span id="btn-credits">CREDITS / KREDITEK</span>
+            </button>
+        </div>
+
+        <!-- Cutscene -->
+        <div id="cutscene">
+            <div class="cutscene-image" id="cutscene-img">
+                <div style="font-size: 24px; color: #10b981;">MADENTA CLINIC</div>
+            </div>
+            <div class="dialogue-box">
+                <div class="speaker" id="speaker">DR. DÁVID FARKAS</div>
+                <div class="dialogue-text" id="dialogue">
+                    Loading story...
+                </div>
+                <button class="continue-btn" onclick="nextDialogue()">
+                    <span id="btn-continue">NEXT ▶</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas" width="1200" height="800"></canvas>
+
+        <!-- HUD -->
+        <div id="hud">
+            <div class="hud-panel">
+                <div class="hud-label" id="lbl-health">HEALTH / EGÉSZSÉG</div>
+                <div class="health-bar">
+                    <div class="health-fill" id="health-fill" style="width: 100%"></div>
+                </div>
+                <div class="hud-label" style="margin-top: 15px;" id="lbl-score">SCORE / PONTSZÁM</div>
+                <div class="hud-value" id="score">0</div>
+            </div>
+            <div class="hud-panel">
+                <div class="hud-label" id="lbl-level">LEVEL / SZINT</div>
+                <div class="hud-value" id="level">1</div>
+                <div class="hud-label" style="margin-top: 15px;" id="lbl-enemies">ENEMIES / ELLENSÉGEK</div>
+                <div class="hud-value" id="enemies">0</div>
+            </div>
+        </div>
+
+        <!-- Controls Info -->
+        <div class="controls" id="controls-info" style="display: none;">
+            <span id="controls-text">
+                ⬅➡ MOVE | SPACE SHOOT | W JUMP | 1-5 WEAPONS
+            </span>
+        </div>
+
+        <!-- Game Over -->
+        <div class="game-over" id="game-over">
+            <div class="game-over-title">GAME OVER</div>
+            <button class="menu-btn" onclick="restartGame()">
+                <span id="btn-retry">RETRY / ÚJRA</span>
+            </button>
+        </div>
+
+        <div class="game-over" id="victory">
+            <div class="victory-title">VICTORY!</div>
+            <div class="subtitle" style="margin-bottom: 30px;" id="victory-text">
+                The Tooth Cartel has been destroyed!<br>
+                Madenta saves dentistry!
+            </div>
+            <button class="menu-btn" onclick="restartGame()">
+                <span id="btn-menu">MAIN MENU / FŐMENÜ</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // MADENTA BROFORCE - FULL GAME
+        // ============================================
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let currentLang = 'is';
+        let gameState = 'MENU'; // MENU, CUTSCENE, PLAYING, GAMEOVER, VICTORY
+        let currentLevel = 1;
+        let score = 0;
+        let cutsceneIndex = 0;
+
+        // ============================================
+        // LANGUAGE SYSTEM
+        // ============================================
+
+        const LANG = {
+            is: {
+                title: "MADENTA BROFORCE",
+                subtitle: "Tannplanta bardagaleikurinn\nBerjast gegn spilltum tannlæknum!",
+                btnStart: "HEFJA LEIKINN",
+                btnControls: "STJÓRNUN",
+                btnCredits: "CREDITS",
+                btnContinue: "ÁFRAM ▶",
+                btnRetry: "REYNA AFTUR",
+                btnMenu: "AÐALVALMYND",
+                lblHealth: "LÍFSGILDI",
+                lblScore: "STIG",
+                lblLevel: "LEVEL",
+                lblEnemies: "ÓVINIR",
+                controlsText: "⬅➡ HREYFA | SPACE SKJÓTA | W HOPPA | 1-5 VOPN",
+                victoryText: "Tannmafían hefur verið eyðilögð!<br>Madenta bjargaði tannlækningum!"
+            },
+            hu: {
+                title: "MADENTA BROFORCE",
+                subtitle: "Az All-on-4 akció játék\nHarcolj a korrupt fogorvosok ellen!",
+                btnStart: "JÁTÉK INDÍTÁSA",
+                btnControls: "IRÁNYÍTÁS",
+                btnCredits: "KREDITEK",
+                btnContinue: "TOVÁBB ▶",
+                btnRetry: "ÚJRA",
+                btnMenu: "FŐMENÜ",
+                lblHealth: "EGÉSZSÉG",
+                lblScore: "PONTSZÁM",
+                lblLevel: "SZINT",
+                lblEnemies: "ELLENSÉGEK",
+                controlsText: "⬅➡ MOZGÁS | SPACE LÖVÉS | W UGRÁS | 1-5 FEGYVEREK",
+                victoryText: "A Fog Kartell megsemmisült!<br>Madenta megmentette a fogászatot!"
+            }
+        };
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const t = LANG[currentLang];
+            document.getElementById('game-title').innerText = t.title;
+            document.getElementById('game-subtitle').innerHTML = t.subtitle;
+            document.getElementById('btn-start').innerText = t.btnStart;
+            document.getElementById('btn-controls').innerText = t.btnControls;
+            document.getElementById('btn-credits').innerText = t.btnCredits;
+            document.getElementById('btn-continue').innerText = t.btnContinue;
+            document.getElementById('btn-retry').innerText = t.btnRetry;
+            document.getElementById('btn-menu').innerText = t.btnMenu;
+            document.getElementById('lbl-health').innerText = t.lblHealth;
+            document.getElementById('lbl-score').innerText = t.lblScore;
+            document.getElementById('lbl-level').innerText = t.lblLevel;
+            document.getElementById('lbl-enemies').innerText = t.lblEnemies;
+            document.getElementById('controls-text').innerText = t.controlsText;
+            document.getElementById('victory-text').innerHTML = t.victoryText;
+        }
+
+        // ============================================
+        // STORY / CUTSCENES
+        // ============================================
+
+        const STORY = {
+            is: [
+                {
+                    speaker: "ÓMAR THE PATIENT",
+                    text: "Ég þarf All-on-4 tannplöntun. Í Budapest. Madenta. En... eitthvað er skrýtið.",
+                    bg: "budapest"
+                },
+                {
+                    speaker: "DR. DÁVID FARKAS",
+                    text: "Velkomin! Við gerum All-on-4 meðferðina. Títanímpplantur. Varanleg lausn. En... hér er vandamál.",
+                    bg: "clinic"
+                },
+                {
+                    speaker: "DR. GYÖRGY PÉTER",
+                    text: "Bakteríur hafa tekið völdin! Carius og Bactus leiða árás á tannheilsuna!",
+                    bg: "bacteria"
+                },
+                {
+                    speaker: "GUNNAR",
+                    text: "Og það er verra... ég fann leyndarmál. Spilltir tannlæknar vinna með... ILLUM ÁLFUM?!",
+                    bg: "conspiracy"
+                },
+                {
+                    speaker: "DR. DÁVID FARKAS",
+                    text: "The Tooth Cartel. Þeir draga úr tennum til að selja Evil Tooth Fairies sem skothríð. Við verðum að stöðva þá!",
+                    bg: "factory"
+                },
+                {
+                    speaker: "ÓMAR",
+                    text: "Þá bardaga! Fyrir hreinar tennur og heiðarlegar tannlækningar!",
+                    bg: "ready"
+                }
+            ],
+            hu: [
+                {
+                    speaker: "ÓMAR A BETEG",
+                    text: "All-on-4 implantációra van szükségem. Budapesten. Madentánál. De... valami furcsa.",
+                    bg: "budapest"
+                },
+                {
+                    speaker: "DR. DÁVID FARKAS",
+                    text: "Üdvözlöm! Az All-on-4 kezelést végezzük. Titán implantátumok. Tartós megoldás. De... van egy probléma.",
+                    bg: "clinic"
+                },
+                {
+                    speaker: "DR. GYÖRGY PÉTER",
+                    text: "A baktériumok átvették az irányítást! Carius és Bactus támadást indítottak a fogászat ellen!",
+                    bg: "bacteria"
+                },
+                {
+                    speaker: "GUNNAR",
+                    text: "És még rosszabb... titkot fedeztem fel. Korrupt fogorvosok együttműködnek... GONOSZ TÜNDÉREKKEL?!",
+                    bg: "conspiracy"
+                },
+                {
+                    speaker: "DR. DÁVID FARKAS",
+                    text: "A Fog Kartell. Fogakat húznak, és eladják a Gonosz Fogtündéreknek lőszerként. Meg kell állítanunk őket!",
+                    bg: "factory"
+                },
+                {
+                    speaker: "ÓMAR",
+                    text: "Akkor harcba! A tiszta fogakért és a tisztességes fogászatért!",
+                    bg: "ready"
+                }
+            ]
+        };
+
+        function startStory() {
+            cutsceneIndex = 0;
+            showCutscene();
+        }
+
+        function showCutscene() {
+            gameState = 'CUTSCENE';
+            document.getElementById('menu').classList.add('menu-hidden');
+            document.getElementById('cutscene').classList.add('cutscene-active');
+            document.getElementById('controls-info').style.display = 'none';
+            
+            const story = STORY[currentLang];
+            if (cutsceneIndex < story.length) {
+                const scene = story[cutsceneIndex];
+                document.getElementById('speaker').innerText = scene.speaker;
+                document.getElementById('dialogue').innerText = scene.text;
+            }
+        }
+
+        function nextDialogue() {
+            cutsceneIndex++;
+            const story = STORY[currentLang];
+            
+            if (cutsceneIndex < story.length) {
+                const scene = story[cutsceneIndex];
+                document.getElementById('speaker').innerText = scene.speaker;
+                document.getElementById('dialogue').innerText = scene.text;
+            } else {
+                // Start game
+                startGame();
+            }
+        }
+
+        function startGame() {
+            gameState = 'PLAYING';
+            document.getElementById('cutscene').classList.remove('cutscene-active');
+            document.getElementById('controls-info').style.display = 'block';
+            initGame();
+        }
+
+        function showControls() {
+            alert(LANG[currentLang].controlsText);
+        }
+
+        function showCredits() {
+            const credits = `
+MADENTA BROFORCE
+
+Game Design & Code:
+2076 ehf - Ómar Örn Magnússon
+
+Inspired by:
+Dr. Dávid Farkas (Madenta)
+Dr. György Péter (Chief Surgeon)
+Carius & Bactus (Thorbjørn Egner)
+
+Created with:
+Claude 4 Sonnet
+Hugging Face AI
+Cloudflare Workers
+
+Special Thanks:
+Madenta Budapest
+All-on-4® Community
+Icelandic Dental Tourists
+
+Made in Budapest & Reykjavík
+2025
+
+madenta.is | 2076.is
+            `;
+            alert(credits);
+        }
+
+        // ============================================
+        // GAME ENGINE
+        // ============================================
+
+        let player = {
+            x: 100,
+            y: 600,
+            w: 40,
+            h: 60,
+            vx: 0,
+            vy: 0,
+            speed: 5,
+            jumpPower: -15,
+            gravity: 0.8,
+            onGround: false,
+            health: 100,
+            weapon: 0,
+            facing: 1
+        };
+
+        let enemies = [];
+        let projectiles = [];
+        let particles = [];
+        let keys = {};
+        let frame = 0;
+
+        function initGame() {
+            player.health = 100;
+            player.x = 100;
+            player.y = 600;
+            score = 0;
+            currentLevel = 1;
+            enemies = [];
+            projectiles = [];
+            spawnEnemies();
+            gameLoop();
+        }
+
+        function spawnEnemies() {
+            enemies = [];
+            const enemyCount = 5 + (currentLevel * 2);
+            for (let i = 0; i < enemyCount; i++) {
+                enemies.push({
+                    x: 800 + Math.random() * 400,
+                    y: 500 + Math.random() * 100,
+                    w: 30,
+                    h: 40,
+                    vx: -2 - Math.random(),
+                    health: 20,
+                    type: Math.random() > 0.7 ? 'boss' : 'minion'
+                });
+            }
+        }
+
+        function gameLoop() {
+            if (gameState !== 'PLAYING') return;
+
+            update();
+            render();
+            frame++;
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            // Player movement
+            if (keys['ArrowLeft']) {
+                player.vx = -player.speed;
+                player.facing = -1;
+            } else if (keys['ArrowRight']) {
+                player.vx = player.speed;
+                player.facing = 1;
+            } else {
+                player.vx = 0;
+            }
+
+            if (keys['w'] || keys['W'] || keys[' ']) {
+                if (player.onGround) {
+                    player.vy = player.jumpPower;
+                    player.onGround = false;
+                }
+            }
+
+            // Physics
+            player.vy += player.gravity;
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // Ground collision
+            if (player.y > 600) {
+                player.y = 600;
+                player.vy = 0;
+                player.onGround = true;
+            }
+
+            // Boundaries
+            player.x = Math.max(0, Math.min(1160, player.x));
+
+            // Update enemies
+            enemies.forEach((enemy, i) => {
+                enemy.x += enemy.vx;
+                if (enemy.x < -50) enemy.x = 1250;
+
+                // Collision with player
+                if (checkCollision(player, enemy)) {
+                    player.health -= 1;
+                    enemies.splice(i, 1);
+                    createParticles(enemy.x, enemy.y, '#ef4444');
+                }
+            });
+
+            // Update projectiles
+            projectiles.forEach((proj, i) => {
+                proj.x += proj.vx;
+                proj.y += proj.vy;
+
+                // Hit enemies
+                enemies.forEach((enemy, j) => {
+                    if (checkCollision(proj, enemy)) {
+                        enemy.health -= 10;
+                        projectiles.splice(i, 1);
+                        createParticles(enemy.x, enemy.y, '#10b981');
+                        
+                        if (enemy.health <= 0) {
+                            enemies.splice(j, 1);
+                            score += enemy.type === 'boss' ? 500 : 100;
+                            createParticles(enemy.x, enemy.y, '#fbbf24');
+                        }
+                    }
+                });
+
+                // Remove off-screen
+                if (proj.x < 0 || proj.x > 1200) {
+                    projectiles.splice(i, 1);
+                }
+            });
+
+            // Update particles
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.5;
+                p.life--;
+                return p.life > 0;
+            });
+
+            // Check win condition
+            if (enemies.length === 0) {
+                currentLevel++;
+                if (currentLevel > 5) {
+                    victory();
+                } else {
+                    setTimeout(spawnEnemies, 2000);
+                }
+            }
+
+            // Check lose condition
+            if (player.health <= 0) {
+                gameOver();
+            }
+
+            // Update HUD
+            updateHUD();
+        }
+
+        function render() {
+            // Clear
+            ctx.fillStyle = '#0a1f1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid background
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.1)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Ground
+            ctx.fillStyle = '#064e3b';
+            ctx.fillRect(0, 640, 1200, 160);
+
+            // Player
+            ctx.save();
+            ctx.translate(player.x + player.w/2, player.y + player.h/2);
+            if (player.facing === -1) ctx.scale(-1, 1);
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(-player.w/2, -player.h/2, player.w, player.h);
+            // Player face
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-10, -15, 8, 8);
+            ctx.fillRect(2, -15, 8, 8);
+            ctx.restore();
+
+            // Enemies
+            enemies.forEach(enemy => {
+                ctx.fillStyle = enemy.type === 'boss' ? '#9333ea' : '#ef4444';
+                ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
+                // Enemy face
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(enemy.x + 5, enemy.y + 10, 6, 6);
+                ctx.fillRect(enemy.x + 19, enemy.y + 10, 6, 6);
+                // Health bar
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(enemy.x, enemy.y - 10, enemy.w, 4);
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(enemy.x, enemy.y - 10, enemy.w * (enemy.health / 20), 4);
+            });
+
+            // Projectiles
+            projectiles.forEach(proj => {
+                ctx.fillStyle = '#6ee7b7';
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, proj.r, 0, Math.PI * 2);
+                ctx.fill();
+                // Glow
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#6ee7b7';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            // Particles
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life / 30;
+                ctx.fillRect(p.x, p.y, 4, 4);
+                ctx.globalAlpha = 1;
+            });
+        }
+
+        function shoot() {
+            projectiles.push({
+                x: player.x + (player.facing === 1 ? player.w : 0),
+                y: player.y + player.h / 2,
+                vx: player.facing * 10,
+                vy: 0,
+                r: 5
+            });
+        }
+
+        function checkCollision(a, b) {
+            return a.x < b.x + b.w &&
+                   a.x + a.w > b.x &&
+                   a.y < b.y + b.h &&
+                   a.y + a.h > b.y;
+        }
+
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 30,
+                    color: color
+                });
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById('health-fill').style.width = Math.max(0, player.health) + '%';
+            document.getElementById('score').innerText = score;
+            document.getElementById('level').innerText = currentLevel;
+            document.getElementById('enemies').innerText = enemies.length;
+        }
+
+        function gameOver() {
+            gameState = 'GAMEOVER';
+            document.getElementById('game-over').classList.add('game-over-active');
+        }
+
+        function victory() {
+            gameState = 'VICTORY';
+            document.getElementById('victory').classList.add('game-over-active');
+        }
+
+        function restartGame() {
+            gameState = 'MENU';
+            document.getElementById('menu').classList.remove('menu-hidden');
+            document.getElementById('game-over').classList.remove('game-over-active');
+            document.getElementById('victory').classList.remove('game-over-active');
+            document.getElementById('controls-info').style.display = 'none';
+        }
+
+        // Keyboard
+        window.addEventListener('keydown', e => {
+            keys[e.key] = true;
+            if (e.key === ' ' && gameState === 'PLAYING') {
+                shoot();
+                e.preventDefault();
+            }
+        });
+
+        window.addEventListener('keyup', e => {
+            keys[e.key] = false;
+        });
+
+        // Initialize
+        updateLanguage();
+    </script>
+</body>
+</html>

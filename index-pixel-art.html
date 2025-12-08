@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MADENTA: All-on-4 - Pixel Art Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Press Start 2P', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #game-container {
+            position: relative;
+            width: 900px;
+            height: 650px;
+            background: #0f3460;
+            border: 8px solid #10b981;
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.5),
+                        inset 0 0 20px rgba(0,0,0,0.5);
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            color: #00ff00;
+            font-size: 10px;
+            text-shadow: 0 0 5px #00ff00;
+            z-index: 10;
+        }
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .hud-label {
+            color: #10b981;
+        }
+        .hud-value {
+            color: #00ff00;
+        }
+        #weapon-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        .weapon-btn {
+            width: 64px;
+            height: 64px;
+            background: rgba(0,0,0,0.8);
+            border: 3px solid #10b981;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            image-rendering: pixelated;
+        }
+        .weapon-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.5);
+        }
+        .weapon-btn.active {
+            border-color: #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .weapon-icon {
+            font-size: 32px;
+            line-height: 58px;
+            text-align: center;
+        }
+        #lang-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        .lang-btn {
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #10b981;
+            color: #10b981;
+            cursor: pointer;
+            font-size: 8px;
+            font-family: 'Press Start 2P', monospace;
+        }
+        .lang-btn.active {
+            background: #10b981;
+            color: #000;
+        }
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 40px;
+            text-align: center;
+        }
+        .hidden { display: none !important; }
+        h1 {
+            color: #10b981;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #10b981;
+        }
+        .subtitle {
+            color: #00ff00;
+            font-size: 10px;
+            margin-bottom: 30px;
+        }
+        .btn-start {
+            background: #10b981;
+            color: #000;
+            border: 4px solid #00ff00;
+            padding: 15px 40px;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 0 20px #10b981;
+            transition: all 0.2s;
+        }
+        .btn-start:hover {
+            background: #00ff00;
+            transform: scale(1.1);
+        }
+        .madenta-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 18px;
+            color: #10b981;
+            text-shadow: 0 0 10px #10b981;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="900" height="650"></canvas>
+        
+        <div class="madenta-logo">MADENTA</div>
+        
+        <div id="lang-toggle">
+            <button class="lang-btn active" onclick="setLang('is')">IS</button>
+            <button class="lang-btn" onclick="setLang('hu')">HU</button>
+        </div>
+        
+        <div id="hud">
+            <div class="hud-row">
+                <div><span class="hud-label">SCORE:</span> <span class="hud-value" id="score">€0</span></div>
+                <div><span class="hud-label">TEETH:</span> <span class="hud-value" id="teeth">28</span></div>
+            </div>
+            <div class="hud-row">
+                <div><span class="hud-label">SUCCESS:</span> <span class="hud-value" id="success">100%</span></div>
+                <div><span class="hud-label">TIME:</span> <span class="hud-value" id="time">300</span></div>
+            </div>
+        </div>
+        
+        <div id="weapon-bar">
+            <div class="weapon-btn active" onclick="selectWeapon(0)" id="weapon-0">
+                <div class="weapon-icon">🔷</div>
+            </div>
+            <div class="weapon-btn" onclick="selectWeapon(1)" id="weapon-1">
+                <div class="weapon-icon">🔨</div>
+            </div>
+            <div class="weapon-btn" onclick="selectWeapon(2)" id="weapon-2">
+                <div class="weapon-icon">⚡</div>
+            </div>
+            <div class="weapon-btn" onclick="selectWeapon(3)" id="weapon-3">
+                <div class="weapon-icon">🌀</div>
+            </div>
+            <div class="weapon-btn" onclick="selectWeapon(4)" id="weapon-4">
+                <div class="weapon-icon">🔩</div>
+            </div>
+        </div>
+        
+        <div id="overlay">
+            <h1 id="title">MADENTA: ALL-ON-4</h1>
+            <p class="subtitle" id="subtitle">PIXEL ART EDITION</p>
+            <div style="color: #00ff00; font-size: 9px; line-height: 16px; max-width: 600px;">
+                <p id="desc">
+                    PLAY AS DR. DAVID FARKAS<br><br>
+                    EXTRACT 28 TEETH<br>
+                    PLACE TITANIUM IMPLANTS<br>
+                    DESTROY BACTERIA<br>
+                    ACHIEVE 98% SUCCESS<br><br>
+                    USE WASD OR ARROWS TO MOVE<br>
+                    SPACE TO FIRE<br>
+                    1-5 TO SWITCH WEAPONS
+                </p>
+            </div>
+            <button class="btn-start" onclick="startGame()">START SURGERY</button>
+        </div>
+    </div>
+
+<script>
+// PIXEL ART MADENTA GAME - SPRITE-BASED VERSION
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false; // Pixel-perfect rendering
+
+// LANGUAGE SYSTEM
+const LANG = {
+    is: {
+        title: "MADENTA: ALL-ON-4",
+        subtitle: "ÍSLENSK ÚTGÁFA",
+        desc: "SPILAÐU SEM DR. DÁVID FARKAS<br><br>FJARLÆGÐU 28 TENNUR<br>SETTU TÍTANÍMPPLANTUR<br>EYÐDU BAKTERÍUM<br>NÁ 98% ÁRANGRI",
+        start: "HEFJA AÐGERÐ"
+    },
+    hu: {
+        title: "MADENTA: ALL-ON-4",
+        subtitle: "MAGYAR VÁLTOZAT",
+        desc: "JÁTSSZ DR. DÁVID FARKASKÉNT<br><br>TÁVOLÍTS EL 28 FOGAT<br>HELYEZZ BE IMPLANTÁTUMOKAT<br>PUSZTÍTSD EL A BAKTÉRIUMOKAT<br>ÉRJ EL 98% SIKERT",
+        start: "MŰTÉT INDÍTÁSA"
+    }
+};
+
+let currentLang = 'is';
+function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', (i === 0 && lang === 'is') || (i === 1 && lang === 'hu'));
+    });
+    document.getElementById('title').innerText = LANG[lang].title;
+    document.getElementById('subtitle').innerText = LANG[lang].subtitle;
+    document.getElementById('desc').innerHTML = LANG[lang].desc;
+    document.querySelector('.btn-start').innerText = LANG[lang].start;
+}
+
+// GAME STATE
+let gameState = 'MENU';
+let score = 0;
+let teethLeft = 28;
+let successRate = 100;
+let timeLeft = 300;
+let currentWeapon = 0;
+let frame = 0;
+
+// PLAYER (DR. DÁVID)
+const player = {
+    x: 100,
+    y: 500,
+    width: 48,
+    height: 64,
+    vx: 0,
+    vy: 0,
+    speed: 4,
+    jumping: false,
+    animFrame: 0,
+    animTimer: 0,
+    facing: 1, // 1 = right, -1 = left
+    shooting: false,
+    shootTimer: 0
+};
+
+// SPRITE SYSTEM
+class Sprite {
+    constructor(color, width, height) {
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = width;
+        this.canvas.height = height;
+        this.ctx = this.canvas.getContext('2d');
+        this.ctx.imageSmoothingEnabled = false;
+    }
+    
+    drawPixelArtCharacter() {
+        const ctx = this.ctx;
+        const scale = 3;
+        
+        // Dr. Dávid sprite (simplified pixel art)
+        // Head
+        ctx.fillStyle = '#d4a574';
+        ctx.fillRect(6*scale, 2*scale, 4*scale, 4*scale);
+        
+        // Sunglasses
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(6*scale, 3*scale, 4*scale, 1*scale);
+        
+        // Hair
+        ctx.fillStyle = '#4a3728';
+        ctx.fillRect(6*scale, 1*scale, 4*scale, 2*scale);
+        
+        // Body (purple shirt - Madenta colors)
+        ctx.fillStyle = '#7b2d7e';
+        ctx.fillRect(5*scale, 6*scale, 6*scale, 4*scale);
+        
+        // Arms
+        ctx.fillStyle = '#d4a574';
+        ctx.fillRect(4*scale, 7*scale, 1*scale, 3*scale);
+        ctx.fillRect(11*scale, 7*scale, 1*scale, 3*scale);
+        
+        // Legs (grey pants)
+        ctx.fillStyle = '#9ca3af';
+        ctx.fillRect(6*scale, 10*scale, 2*scale, 4*scale);
+        ctx.fillRect(8*scale, 10*scale, 2*scale, 4*scale);
+        
+        // Shoes
+        ctx.fillStyle = '#1f2937';
+        ctx.fillRect(5*scale, 14*scale, 3*scale, 1*scale);
+        ctx.fillRect(8*scale, 14*scale, 3*scale, 1*scale);
+        
+        return this.canvas;
+    }
+    
+    drawWeapon(weaponType) {
+        const ctx = this.ctx;
+        const scale = 2;
+        
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        switch(weaponType) {
+            case 0: // DRILL (blue/cyan)
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(2*scale, 4*scale, 8*scale, 2*scale);
+                ctx.fillStyle = '#60a5fa';
+                ctx.fillRect(8*scale, 3*scale, 3*scale, 4*scale);
+                break;
+            case 1: // CRUSHER (grey hammer)
+                ctx.fillStyle = '#6b7280';
+                ctx.fillRect(2*scale, 3*scale, 3*scale, 6*scale);
+                ctx.fillStyle = '#9ca3af';
+                ctx.fillRect(5*scale, 5*scale, 6*scale, 2*scale);
+                break;
+            case 2: // LASER (cyan/green)
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(2*scale, 4*scale, 10*scale, 2*scale);
+                ctx.fillStyle = '#00ff00';
+                ctx.fillRect(10*scale, 3*scale, 2*scale, 4*scale);
+                break;
+            case 3: // SUCTION (grey cylinder)
+                ctx.fillStyle = '#4b5563';
+                ctx.fillRect(2*scale, 2*scale, 3*scale, 8*scale);
+                ctx.fillStyle = '#6b7280';
+                ctx.fillRect(5*scale, 4*scale, 6*scale, 4*scale);
+                break;
+            case 4: // IMPLANT (titanium screw)
+                ctx.fillStyle = '#9ca3af';
+                ctx.fillRect(4*scale, 1*scale, 4*scale, 10*scale);
+                ctx.fillStyle = '#d1d5db';
+                ctx.fillRect(3*scale, 3*scale, 6*scale, 1*scale);
+                ctx.fillRect(3*scale, 6*scale, 6*scale, 1*scale);
+                break;
+        }
+        
+        return this.canvas;
+    }
+}
+
+// Create sprite sheets
+const playerSprite = new Sprite('#000', 48, 64);
+const playerCanvas = playerSprite.drawPixelArtCharacter();
+
+const weaponSprites = [];
+for(let i = 0; i < 5; i++) {
+    const ws = new Sprite('#000', 32, 32);
+    weaponSprites.push(ws.drawWeapon(i));
+}
+
+// TEETH (TARGETS)
+const teeth = [];
+for(let i = 0; i < 28; i++) {
+    teeth.push({
+        x: 200 + (i % 7) * 90,
+        y: 100 + Math.floor(i / 7) * 80,
+        width: 40,
+        height: 40,
+        type: Math.random() < 0.2 ? 'hard' : 'normal',
+        alive: true,
+        health: Math.random() < 0.2 ? 2 : 1
+    });
+}
+
+// PROJECTILES
+const projectiles = [];
+
+// PARTICLES
+const particles = [];
+
+// INPUT
+const keys = {};
+document.addEventListener('keydown', e => keys[e.key] = true);
+document.addEventListener('keyup', e => keys[e.key] = false);
+
+// WEAPON SELECTION
+function selectWeapon(id) {
+    currentWeapon = id;
+    document.querySelectorAll('.weapon-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === id);
+    });
+}
+
+// Handle number keys for weapons
+document.addEventListener('keydown', e => {
+    if(e.key >= '1' && e.key <= '5') {
+        selectWeapon(parseInt(e.key) - 1);
+    }
+});
+
+// PARTICLE EFFECT
+function createParticles(x, y, color, count = 10) {
+    for(let i = 0; i < count; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4,
+            life: 30,
+            color
+        });
+    }
+}
+
+// START GAME
+function startGame() {
+    document.getElementById('overlay').classList.add('hidden');
+    gameState = 'PLAYING';
+    gameLoop();
+}
+
+// GAME LOOP
+function gameLoop() {
+    if(gameState !== 'PLAYING') return;
+    
+    frame++;
+    
+    // Clear
+    ctx.fillStyle = '#0f3460';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Grid background
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.1)';
+    ctx.lineWidth = 1;
+    for(let x = 0; x < canvas.width; x += 50) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+    }
+    for(let y = 0; y < canvas.height; y += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+    }
+    
+    // UPDATE PLAYER
+    if(keys['ArrowLeft'] || keys['a'] || keys['A']) {
+        player.vx = -player.speed;
+        player.facing = -1;
+    } else if(keys['ArrowRight'] || keys['d'] || keys['D']) {
+        player.vx = player.speed;
+        player.facing = 1;
+    } else {
+        player.vx = 0;
+    }
+    
+    player.x += player.vx;
+    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    
+    // SHOOTING
+    if((keys[' '] || keys['Space']) && player.shootTimer <= 0) {
+        player.shooting = true;
+        player.shootTimer = 15;
+        
+        // Create projectile
+        projectiles.push({
+            x: player.x + (player.facing > 0 ? player.width : 0),
+            y: player.y + player.height / 2,
+            vx: player.facing * 8,
+            vy: 0,
+            type: currentWeapon,
+            life: 60
+        });
+        
+        createParticles(
+            player.x + player.width/2, 
+            player.y + player.height/2, 
+            currentWeapon === 2 ? '#00ff00' : '#3b82f6',
+            5
+        );
+    }
+    
+    if(player.shootTimer > 0) player.shootTimer--;
+    if(player.shootTimer <= 0) player.shooting = false;
+    
+    // DRAW TEETH
+    teeth.forEach(tooth => {
+        if(!tooth.alive) return;
+        
+        ctx.fillStyle = tooth.type === 'hard' ? '#4b5563' : '#f3f4f6';
+        ctx.fillRect(tooth.x, tooth.y, tooth.width, tooth.height);
+        
+        ctx.strokeStyle = tooth.type === 'hard' ? '#1f2937' : '#d1d5db';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(tooth.x, tooth.y, tooth.width, tooth.height);
+        
+        // Tooth shape detail
+        ctx.fillStyle = tooth.type === 'hard' ? '#374151' : '#e5e7eb';
+        ctx.fillRect(tooth.x + 5, tooth.y + 5, tooth.width - 10, 10);
+    });
+    
+    // UPDATE PROJECTILES
+    projectiles.forEach((proj, i) => {
+        proj.x += proj.vx;
+        proj.y += proj.vy;
+        proj.life--;
+        
+        // Check collision with teeth
+        teeth.forEach(tooth => {
+            if(!tooth.alive) return;
+            if(proj.x > tooth.x && proj.x < tooth.x + tooth.width &&
+               proj.y > tooth.y && proj.y < tooth.y + tooth.height) {
+                
+                // Drill can't destroy hard teeth
+                if(proj.type === 0 && tooth.type === 'hard') {
+                    createParticles(proj.x, proj.y, '#ef4444', 8);
+                    proj.life = 0;
+                    return;
+                }
+                
+                tooth.health--;
+                if(tooth.health <= 0) {
+                    tooth.alive = false;
+                    teethLeft--;
+                    score += tooth.type === 'hard' ? 200 : 120;
+                    createParticles(tooth.x + 20, tooth.y + 20, '#10b981', 15);
+                }
+                proj.life = 0;
+            }
+        });
+        
+        if(proj.life <= 0 || proj.x < 0 || proj.x > canvas.width) {
+            projectiles.splice(i, 1);
+        }
+    });
+    
+    // DRAW PROJECTILES
+    ctx.save();
+    projectiles.forEach(proj => {
+        const colors = ['#3b82f6', '#6b7280', '#00ff00', '#60a5fa', '#10b981'];
+        ctx.fillStyle = colors[proj.type];
+        
+        if(proj.type === 2) { // Laser
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#00ff00';
+        }
+        
+        ctx.fillRect(proj.x - 4, proj.y - 4, 8, 8);
+    });
+    ctx.restore();
+    
+    // UPDATE PARTICLES
+    particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        if(p.life <= 0) particles.splice(i, 1);
+    });
+    
+    // DRAW PARTICLES
+    particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.life / 30;
+        ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+    });
+    ctx.globalAlpha = 1;
+    
+    // DRAW PLAYER
+    ctx.save();
+    ctx.translate(player.x + player.width/2, player.y);
+    if(player.facing < 0) ctx.scale(-1, 1);
+    ctx.drawImage(playerCanvas, -player.width/2, 0, player.width, player.height);
+    
+    // Draw weapon
+    if(player.shooting) {
+        ctx.drawImage(
+            weaponSprites[currentWeapon],
+            player.width/2 - 10,
+            20,
+            32,
+            32
+        );
+    }
+    ctx.restore();
+    
+    // UPDATE HUD
+    document.getElementById('score').innerText = `€${score}`;
+    document.getElementById('teeth').innerText = teethLeft;
+    document.getElementById('success').innerText = `${Math.floor(successRate)}%`;
+    document.getElementById('time').innerText = Math.floor(timeLeft);
+    
+    // TIME
+    timeLeft -= 0.016;
+    if(timeLeft <= 0 || teethLeft <= 0) {
+        endGame();
+        return;
+    }
+    
+    requestAnimationFrame(gameLoop);
+}
+
+function endGame() {
+    gameState = 'GAMEOVER';
+    alert(teethLeft === 0 ? 
+        (currentLang === 'is' ? 'ÁRANGUR! Allar tennur fjarlægðar!' : 'SIKER! Minden fog eltávolítva!') :
+        (currentLang === 'is' ? 'TÍMINN RANN ÚT!' : 'AZ IDŐ LEJÁRT!')
+    );
+}
+</script>
+</body>
+</html>

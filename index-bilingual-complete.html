@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MADENTA: All-on-4 Élmény / Reynsla - Bilingual Edition</title>
+    
+    <meta name="description" content="Tapasztald meg az All-on-4 fogbeültetési műtétet játékformában / Upplifðu All-on-4 tannplantaaðgerðina í leikjaformi">
+    <meta property="og:title" content="MADENTA: All-on-4 Játék / Leikur">
+    <meta property="og:description" content="Oktató játék / Fræðandi leikur - Dr. Dávid Farkas">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0;
+            background: linear-gradient(135deg, #0a4d3c 0%, #064a38 100%);
+            color: #fff; font-family: 'Inter', sans-serif;
+            overflow: hidden; touch-action: none;
+            display: flex; flex-direction: column; align-items: center; height: 100vh;
+        }
+        #game-wrapper {
+            position: relative; width: 100%; max-width: 900px;
+            height: 100vh; max-height: 650px;
+            background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 3px solid #10b981; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border-radius: 8px; overflow: hidden;
+        }
+        canvas { display: block; width: 100%; height: 100%; }
+        .hud-panel {
+            position: absolute; pointer-events: none; padding: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.3);
+        }
+        #top-left { top: 15px; left: 15px; }
+        #top-right { top: 15px; right: 15px; text-align: right; }
+        .stat-label { font-size: 11px; color: #064e3b; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 5px; }
+        .stat-val { font-size: 28px; font-weight: 900; margin-bottom: 8px; color: #065f46; }
+        .bar-container {
+            width: 240px; height: 14px; background: rgba(0,0,0,0.2);
+            margin-bottom: 10px; border-radius: 10px; overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+        .bar-fill { height: 100%; transition: width 0.3s ease; border-radius: 8px; }
+        #success-fill { background: linear-gradient(90deg, #10b981, #059669); width: 100%; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+        #time-fill { background: linear-gradient(90deg, #3b82f6, #2563eb); width: 100%; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        .madenta-logo {
+            position: absolute; top: 20px; right: 50%; transform: translateX(50%);
+            font-size: 32px; font-weight: 900; color: #10b981;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1); letter-spacing: 2px;
+            pointer-events: none; background: rgba(255,255,255,0.95);
+            padding: 10px 25px; border-radius: 8px; border: 2px solid #10b981;
+        }
+        #weapon-bar {
+            position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; background: rgba(255,255,255,0.95);
+            padding: 12px; border-radius: 16px; pointer-events: auto;
+            border: 3px solid #10b981; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        .weapon-slot {
+            width: 70px; height: 75px; border: 3px solid #d1d5db; border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; font-size: 10px;
+            background: white; color: #374151; font-weight: 700; text-transform: uppercase;
+        }
+        .weapon-slot:hover { transform: translateY(-3px); border-color: #10b981; }
+        .weapon-slot.active {
+            border-color: #10b981; background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            transform: translateY(-8px) scale(1.05); box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            color: #065f46;
+        }
+        .w-icon { font-size: 28px; margin-bottom: 5px; }
+        .w-label { font-size: 9px; text-align: center; line-height: 1.2; }
+        .w-key { color: #9ca3af; font-size: 8px; margin-top: 3px; }
+        #lang-toggle {
+            position: absolute; top: 20px; left: 20px;
+            display: flex; gap: 5px; background: rgba(255,255,255,0.9);
+            border: 2px solid #10b981; border-radius: 25px; padding: 5px; z-index: 10;
+        }
+        .lang-btn {
+            padding: 8px 16px; border: none; background: transparent;
+            color: #065f46; font-weight: 700; cursor: pointer;
+            border-radius: 20px; transition: all 0.2s; font-size: 14px;
+        }
+        .lang-btn.active { background: #10b981; color: white; }
+        .lang-btn:hover { background: rgba(16, 185, 129, 0.2); }
+        #sound-toggle {
+            position: absolute; bottom: 20px; left: 20px;
+            background: rgba(255,255,255,0.9); border: 2px solid #10b981;
+            border-radius: 50%; width: 50px; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 24px; z-index: 10; transition: all 0.2s;
+        }
+        #sound-toggle:hover { transform: scale(1.1); box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
+        #overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.97), rgba(6, 95, 70, 0.97));
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; z-index: 100; padding: 30px; box-sizing: border-box; overflow-y: auto;
+        }
+        .hidden { display: none !important; }
+        button.btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; border: none; padding: 18px 60px; font-size: 22px;
+            font-family: inherit; font-weight: 800; cursor: pointer; margin-top: 35px;
+            border-radius: 50px; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        button.btn-primary:hover { transform: scale(1.05); box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6); }
+        button.btn-secondary {
+            background: rgba(255,255,255,0.1); color: white;
+            border: 2px solid rgba(255,255,255,0.3); padding: 12px 30px;
+            font-size: 16px; font-family: inherit; font-weight: 600;
+            cursor: pointer; margin: 10px; border-radius: 30px; transition: all 0.2s;
+        }
+        button.btn-secondary:hover { background: rgba(255,255,255,0.2); border-color: #10b981; }
+        button.btn-secondary.selected { background: #10b981; border-color: #10b981; font-weight: 800; }
+        .edu-box {
+            text-align: left; max-width: 700px; background: rgba(255,255,255,0.1);
+            padding: 30px; border-radius: 16px; font-size: 15px; line-height: 1.9;
+            border: 2px solid rgba(255,255,255,0.2); backdrop-filter: blur(20px); margin: 20px 0;
+        }
+        h1 { font-size: 48px; margin: 0 0 15px 0; color: #d1fae5; text-shadow: 3px 3px 6px rgba(0,0,0,0.4); }
+        .subtitle { font-size: 18px; color: #a7f3d0; margin-bottom: 25px; font-weight: 600; }
+        .highlight { color: #6ee7b7; font-weight: 700; }
+        .warning { color: #fbbf24; font-weight: 700; }
+        @media (max-width: 900px) {
+            #game-wrapper { height: calc(100vh - 130px); border-radius: 0; border-left: none; border-right: none; }
+            .w-key { display: none; }
+            .madenta-logo { font-size: 24px; padding: 8px 20px; }
+            h1 { font-size: 36px; }
+            .edu-box { font-size: 13px; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-wrapper">
+        <canvas id="gameCanvas" width="900" height="650"></canvas>
+        
+        <div id="lang-toggle">
+            <button class="lang-btn active" onclick="setLanguage('is')" id="lang-is">🇮🇸</button>
+            <button class="lang-btn" onclick="setLanguage('hu')" id="lang-hu">🇭🇺</button>
+        </div>
+        
+        <div id="sound-toggle" onclick="toggleSound()">🔊</div>
+        <div class="madenta-logo">MADENTA</div>
+        
+        <div id="top-left" class="hud-panel">
+            <div class="stat-label" id="lbl-success">ÁRANGUR</div>
+            <div class="bar-container"><div id="success-fill" class="bar-fill"></div></div>
+            <div class="stat-label" id="lbl-time">TÍMI</div>
+            <div class="bar-container"><div id="time-fill" class="bar-fill"></div></div>
+        </div>
+        
+        <div id="top-right" class="hud-panel">
+            <div class="stat-label" id="lbl-value">VIRÐI</div>
+            <div class="stat-val" style="color: #10b981;" id="score-val">0 €</div>
+            <div class="stat-label" id="lbl-teeth">TENNUR</div>
+            <div class="stat-val" id="teeth-val">28</div>
+        </div>
+        
+        <div id="weapon-bar">
+            <div class="weapon-slot active" onclick="setTool(0)" id="slot-0">
+                <div class="w-icon">🔷</div><div class="w-label" id="tool-0">BORA</div><div class="w-key">1</div>
+            </div>
+            <div class="weapon-slot" onclick="setTool(1)" id="slot-1">
+                <div class="w-icon">🔨</div><div class="w-label" id="tool-1">MYLLARI</div><div class="w-key">2</div>
+            </div>
+            <div class="weapon-slot" onclick="setTool(2)" id="slot-2">
+                <div class="w-icon">⚡</div><div class="w-label" id="tool-2">LASER</div><div class="w-key">3</div>
+            </div>
+            <div class="weapon-slot" onclick="setTool(3)" id="slot-3">
+                <div class="w-icon">🌀</div><div class="w-label" id="tool-3">SOG</div><div class="w-key">4</div>
+            </div>
+            <div class="weapon-slot" onclick="setTool(4)" id="slot-4">
+                <div class="w-icon">🔩</div><div class="w-label" id="tool-4">PLANTA</div><div class="w-key">5</div>
+            </div>
+        </div>
+        
+        <div id="overlay"><div id="menu-content"></div></div>
+    </div>
+
+<script>
+const LANG = {
+    is: {
+        title: "MADENTA: All-on-4 Reynslan",
+        subtitle: "Fræðandi leikur um tannplantaaðgerðir",
+        tools: ["BORA", "MYLLARI", "LASER", "SOG", "PLANTA"],
+        labels: { success: "ÁRANGUR", time: "TÍMI", value: "VIRÐI", teeth: "TENNUR" },
+        diff: ["🟢 AUÐVELT", "🟡 VENJULEGT", "🔴 ERFITT"],
+        btnStart: "HEFJA AÐGERÐ",
+        win: "ÁRANGUR!", lose: "MISTÓKST",
+        timeout: "TÍMINN RANN ÚT!",
+        footer: "Með Dr. Dávid Farkas | madenta.is"
+    },
+    hu: {
+        title: "MADENTA: All-on-4 Élmény",
+        subtitle: "Oktató játék a fogbeültetésről",
+        tools: ["FÚRÓ", "ZÚZÓ", "LÉZER", "SZÍVÓ", "IMPLANT"],
+        labels: { success: "SIKER", time: "IDŐ", value: "ÉRTÉK", teeth: "FOGAK" },
+        diff: ["🟢 KÖNNYŰ", "🟡 NORMÁL", "🔴 NEHÉZ"],
+        btnStart: "MŰTÉT INDÍTÁSA",
+        win: "SIKER!", lose: "SIKERTELEN",
+        timeout: "AZ IDŐ LEJÁRT!",
+        footer: "Dr. Dávid Farkas vezetésével | madenta.is"
+    }
+};
+
+let lang = 'is';
+let gameState = 'MENU';
+let currentTool = 0;
+let difficulty = 1;
+
+function setLanguage(l) {
+    lang = l;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('lang-'+l).classList.add('active');
+    updateUI();
+}
+
+function setDifficulty(d) { difficulty = d; }
+
+function toggleSound() {
+    document.getElementById('sound-toggle').innerText = 
+        document.getElementById('sound-toggle').innerText === '🔊' ? '🔇' : '🔊';
+}
+
+function setTool(t) {
+    currentTool = t;
+    document.querySelectorAll('.weapon-slot').forEach((s,i) => {
+        if(i===t) s.classList.add('active'); else s.classList.remove('active');
+    });
+}
+
+function updateUI() {
+    const T = LANG[lang];
+    document.getElementById('lbl-success').innerText = T.labels.success;
+    document.getElementById('lbl-time').innerText = T.labels.time;
+    document.getElementById('lbl-value').innerText = T.labels.value;
+    document.getElementById('lbl-teeth').innerText = T.labels.teeth;
+    
+    T.tools.forEach((tool, i) => {
+        document.getElementById(`tool-${i}`).innerText = tool;
+    });
+    
+    if(gameState === 'MENU') {
+        document.getElementById('menu-content').innerHTML = `
+            <h1>${T.title}</h1>
+            <p class="subtitle">${T.subtitle}</p>
+            <div class="edu-box">
+                <b style="font-size: 18px; color: #d1fae5;">${lang==='is'?'🦷 Veldu erfiðleikastig:':'🦷 Válassz nehézségi szintet:'}</b><br><br>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    ${T.diff.map((d,i) => `<button class="btn-secondary ${i===difficulty?'selected':''}" onclick="setDifficulty(${i})">${d}</button>`).join('')}
+                </div>
+                <br><b style="color: #6ee7b7;">${lang==='is'?'Markmið: Fjarlægja 28 tennur og setja títanímpplantar':'Cél: Mind a 28 fog eltávolítása és implantátumok behelyezése'}</b>
+            </div>
+            <button class="btn-primary" onclick="startGame()">${T.btnStart}</button>
+            <div style="margin-top:20px;font-size:12px;color:rgba(255,255,255,0.7);">${T.footer}</div>
+        `;
+    }
+}
+
+function startGame() {
+    document.getElementById('overlay').classList.add('hidden');
+    gameState = 'PLAYING';
+    // Game loop would start here
+}
+
+// Initialize
+updateUI();
+</script>
+</body>
+</html>

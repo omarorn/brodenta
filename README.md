@@ -1,427 +1,208 @@
-# 🦷⚡ MADENTA: BROFORCE – THE TOOTH CARTEL SAGA
+# MADENTA: All-on-4 Reynslan
 
-**An epic 2D Broforce-style dental action platformer**
-
-Built by 2076 ehf | Deployed on Cloudflare | Starring Dr. Dávid Farkas
+**Fræðandi leikur um tannplantaaðgerðir**
 
 ---
 
-## 🎮 GAME OVERVIEW
+## 🎯 Markmið Verkefnisins
 
-The Madenta team fights against The Tooth Cartel - a conspiracy of corrupt dentists, Love Island villain fairies, and bacteria gym bros who control the dental underworld.
+Þetta er **pitch demo** fyrir Madenta tannlæknastofuna í Budapest - fræðandi leikur sem:
 
-### The Conspiracy
-
-```
-PATIENT 
-  → UNNECESSARY EXTRACTIONS (Fraudulent Five)
-    → STOLEN TEETH (Evil Tooth Fairy Twins)
-      → WEAPON AMMUNITION (Tooth Factory)
-        → MORE DECAY (Carius & Bactus)
-          → MORE PATIENTS
-            → MORE MONEY 💰
-```
+1. **Kennir íslenskum sjúklingum** um All-on-4® meðferðina
+2. **Vekur athygli** á samfélagsmiðlum (TikTok, YouTube, Instagram)
+3. **Dregur úr kvíða** með skemmtilegri nálgun
+4. **Skapar leiðtoga** fyrir tannheilsuferðamennsku
 
 ---
 
-## 🦸 PLAYABLE HEROES (7 Characters)
+## 🚀 Hraðupptaka Uppsetning
 
-### Jawbreaker Farkas (Dr. Dávid)
-**The Legendary Dentist**
-- **Ultimate:** Full Arch Purge (laser beam destroys all enemies)
-- **Special:** Laughing Gas Cloud (confuses enemies)
-- **Passive:** Calm Aura of Trust (nearby allies +10% defense)
-- **Weapon:** Precision Surgical Laser
-
-### Bracket Queen Gabriella
-**Orthodontic Specialist**
-- **Ultimate:** Perfect Alignment Wave
-- **Special:** Orthodontic Whip (crowd control)
-- **Passive:** Smile Alignment Buff (+15% team accuracy)
-- **Weapon:** Bracket Launcher
-
-### Laser Kat Ekaterina
-**Bacteria Sniper**
-- **Ultimate:** Peri-Laser Storm
-- **Special:** Precision Bacterial Strike
-- **Passive:** Eagle Eye (+20% critical hit chance)
-- **Weapon:** High-Precision Laser Rifle
-
-### Implant Angel Fruzsina
-**Support & Healer**
-- **Ultimate:** Titanium Bridge Construction
-- **Special:** Emergency Heal Wave
-- **Passive:** Regeneration Aura (team HP +2/sec)
-- **Weapon:** Implant Launcher
-
-### Smilesmith Petra
-**Cosmetic Warrior**
-- **Ultimate:** Whitening Flash (blinds all enemies)
-- **Special:** Composite Blaster
-- **Passive:** Confidence Boost (team +10% damage)
-- **Weapon:** Composite Resin Gun
-
-### Flóra Flowmaster
-**Clinic Coordinator**
-- **Ultimate:** Perfect Workflow (slows time)
-- **Special:** Comfort Clipboard Shield
-- **Passive:** Efficiency Aura (cooldowns -15%)
-- **Weapon:** Administrative Paperwork Barrage
-
-### Gunnar Gatekeeper
-**Tactical Teleporter**
-- **Ultimate:** Iceland-Budapest Portal
-- **Special:** Team Teleport
-- **Passive:** Spatial Awareness (reveals hidden enemies)
-- **Weapon:** Dimensional Drill
-
----
-
-## 😈 VILLAINS
-
-### Evil Tooth Fairy Twins
-**Love Island Villain Queens**
-- Decay Dancer: Sugar mist attacks, cavity claws
-- Root Reaper: Heavy hook attacks, bacteria storm
-- Boss Fight: Neon wings, glamour lasers, reality-show energy
-
-### Carius & Bactus
-**The Decay Bros (Gym Bacteria)**
-- **Carius:** Sugar bombs, cavity mines, mega decay turret
-- **Bactus:** Plakk punch, germ flood, Oral Apocalypse ultimate
-- Boss Fight: Double trouble with protein shake power-ups
-
-### The Fraudulent Five
-**Corrupt Reality-TV Dentists**
-
-Each boss has their own glamorous dental office lair:
-1. **Dr. FakeSmile** - Unnecessary extraction specialist
-2. **Dr. GoldTooth** - Overpriced implant pusher
-3. **Dr. QuickDrill** - Speed over quality
-4. **Dr. SocialWhite** - Instagram dentistry
-5. **Dr. Insurance Fraud** - The mastermind
-
----
-
-## 🗺️ LEVEL PROGRESSION
-
-### Level 1: Dental Alley (Tutorial)
-- Basic enemies: Bacteria + animated tools
-- Learn: BORA, LASER, SOG mechanics
-- Mini-boss: Cavity Crawler
-
-### Level 2: Decay Dungeon
-- Environment: Underground plaque caves
-- Enemies: Carius & Bactus minions
-- Mini-boss: Both Decay Bros together
-
-### 🎬 CUTSCENE: The Tooth Pipeline Reveal
-*Discovery of The Tooth Cartel conspiracy*
-
-### Level 3: Tooth Factory
-- Conveyor belts, grinders, tooth vats
-- Environmental hazards: crushing machines
-- Portal chamber to fairy dimension
-- Boss: Factory Foreman (giant bacteria)
-
-### Level 4-8: Fraudulent Dentist Boss Fights
-Each level is a glamorous dental office with unique mechanics:
-- Champagne coolers
-- Gold-trimmed equipment
-- Selfie mirrors
-- Reality-show lighting
-
-### Level 9: Evil Tooth Fairy Twins Lair
-- Neon glam arena
-- Dance-based attack patterns
-- Love Island drama energy
-- Dual boss fight
-
-### Final Level: Triple Threat Showdown
-- All Fraudulent Five return
-- Evil Twins powered-up
-- Tooth Golem (final form)
-- **Epic moment:** Jawbreaker's Full Arch Purge
-
----
-
-## 🎯 GAMEPLAY MECHANICS
-
-### Dental Tools (Weapons)
-
-| Tool | Function | Damage | Cooldown |
-|------|----------|--------|----------|
-| BORA | Regular tooth removal | 15 | 0.5s |
-| MYLLARI | Hard root destruction | 25 | 1.0s |
-| LASER | Bacteria elimination | 10 | 0.3s |
-| SOG | Debris cleanup | 5 | 0.2s |
-| PLANTA | Implant placement (heals) | +20 HP | 3.0s |
-
-### Movement
-- Double jump
-- Slide
-- Wall climb (certain characters)
-- Platform destruction
-
-### Power-Ups
-- 🧪 **Mouthwash:** Invincibility (5 seconds)
-- 🦷 **Titanium Armor:** +50 HP shield
-- 💨 **Nitrous Boost:** +50% speed (10 seconds)
-- ⚡ **Laser Overcharge:** +100% damage (8 seconds)
-- 🌭 **Icelandic Hotdog:** Full HP restore + speed buff
-
----
-
-## 🎨 ART STYLE
-
-**Love Island Budapest × Broforce Fusion**
-
-- 32×32 pixel art sprites
-- Tanned skin palette with glossy highlights
-- Neon purples, teals, dental whites
-- Dramatic posing animations
-- Reality-show glamour meets action hero
-- Broforce muscle proportions
-
-### Character Aesthetic
-- Gym-fit silhouettes
-- Over-the-top expressions
-- Glitter and glow effects
-- Drama eyebrows (even in pixels)
-- Love Island energy: confidence + chaos
-
----
-
-## 🎬 CUTSCENE SEQUENCES
-
-### 1. The Tooth Pipeline Reveal
-- Panel 1: Patient in chair, unnecessary extraction
-- Panel 2: Tooth dropped into chute
-- Panel 3: Evil Twins catching teeth in factory
-- Panel 4: Teeth melted into weapon ammunition
-- Panel 5: Madenta team watching security footage
-- Panel 6: Jawbreaker: "Let's clean this up."
-
-### 2. Tooth Factory Raid
-- Panel 1: Team breach through wall
-- Panel 2: Conveyor belt explosion
-- Panel 3: Bactus bathing in sugar syrup
-- Panel 4: Carius setting cavity bombs
-- Panel 5: Portal opens - fairies emerge
-- Panel 6: Full team battle stance
-
-### 3. Final Showdown Intro
-- Panel 1: Neon lights, reality-show stage
-- Panel 2: Fraudulent Five + Evil Twins entrance
-- Panel 3: Tooth Golem rises from vat
-- Panel 4: Madenta team slow-motion walk
-- Panel 5: Jawbreaker charges ultimate
-- Panel 6: "When decay strikes... we strike back."
-
----
-
-## 🏗️ TECHNICAL ARCHITECTURE
-
-```
-┌─────────────────────────────────────────┐
-│  Cloudflare Pages                       │
-│  └─ madenta.2076.is                     │
-│     ├─ index.html                       │
-│     ├─ game.js (Phaser 3)               │
-│     └─ assets/ (sprites, audio, levels) │
-└─────────────────────────────────────────┘
-           ↓
-┌─────────────────────────────────────────┐
-│  Cloudflare Workers API                 │
-│  ├─ /api/leaderboard                    │
-│  ├─ /api/multiplayer                    │
-│  └─ /api/villain-dialogue (AI gen)      │
-└─────────────────────────────────────────┘
-           ↓
-┌─────────────────────────────────────────┐
-│  Cloudflare KV (Persistence)            │
-│  ├─ High scores                         │
-│  └─ Player progress                     │
-└─────────────────────────────────────────┘
-           ↓
-┌─────────────────────────────────────────┐
-│  Durable Objects (Multiplayer)          │
-│  └─ Real-time co-op sync                │
-└─────────────────────────────────────────┘
-```
-
-### Tech Stack
-- **Engine:** Phaser 3.70.0
-- **Hosting:** Cloudflare Pages
-- **API:** Cloudflare Workers
-- **Storage:** Cloudflare KV
-- **Multiplayer:** Durable Objects
-- **Assets:** R2 Bucket CDN
-
----
-
-## 🚀 QUICK START
-
-### Installation
+### Valmöguleiki 1: Cloudflare Pages (Ráðlagt)
 
 ```bash
-# Clone repository
-git clone https://github.com/2076-ehf/madenta-broforce.git
-cd madenta-broforce
+# 1. Setja upp Wrangler
+npm install -g wrangler
 
-# Install dependencies
-npm install
+# 2. Auðkenna við Cloudflare
+wrangler login
 
-# Run development server
-npm run dev
+# 3. Dreifa
+wrangler pages deploy . --project-name=madenta-game
 
-# Open browser
-http://localhost:8788
+# 4. Koma á custom domain
+# Dashboard → Pages → madenta-game → Custom domains → madenta.2076.is
 ```
 
-### Controls
+### Valmöguleiki 2: Beinn Upphal
 
-| Key | Action |
-|-----|--------|
-| `←` `→` | Move left/right |
-| `↑` | Jump |
-| `SPACE` | Double jump |
-| `SHIFT` | Slide |
-| `Z` | Primary weapon |
-| `X` | Secondary weapon |
-| `C` | Ultimate ability |
-| `V` | Special ability |
-| `1-7` | Switch hero |
-| `ESC` | Pause menu |
+1. Opnaðu [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. Pages → Create a project → Upload assets
+3. Dragðu `index.html` í gluggann
+4. Bættu við domain: `madenta.2076.is`
 
 ---
 
-## 📦 DEPLOYMENT
+## 🎮 Leikjamechaníkin
 
-### Step 1: Create Cloudflare Resources
+### 5 Tæki (Lyklaborð 1-5 eða smelltu)
 
-```bash
-# Create KV namespaces
-npx wrangler kv:namespace create "LEADERBOARD"
-npx wrangler kv:namespace create "GAME_STATE"
+| Tæki | Hlutverk | Vísindaleg Tengsl |
+|------|----------|-------------------|
+| 🔷 **BORA** | Fjarlægir venjulegar tennur | Drill extraction |
+| 🔨 **MYLLARI** | Harðar tennur eingöngu | Bone crushing fyrir calcified roots |
+| ⚡ **LASER** | Drepur bakteríur | Peri-implantitis forvörn |
+| 🌀 **SOG** | Hreinsar úrgang | Suction fyrir debris management |
+| 🔩 **PLANTA** | Setja inn títanímplant | All-on-4® surgical procedure |
 
-# Create R2 bucket
-npx wrangler r2 bucket create madenta-assets
+### Markmið
 
-# Update wrangler.toml with the IDs
+- Fjarlægja **28 tennur**
+- Setja inn **títanímpplantar** í staðinn
+- Halda **árangri** yfir 0%
+- Klára fyrir **tíminn rennur út**
+
+---
+
+## 📚 Fræðslugildi
+
+Leikurinn kennir:
+
+1. **Peri-implantitis** (bakteríusýking) → 🦠 Germs
+2. **Bone grafting** → 🔨 Crusher tool
+3. **Debris management** → 🌀 Suction
+4. **3-4 mánuðir healing** → Tímastjórnun
+5. **All-on-4® ferli** → 4 títanímpplantar í hvorn góm
+
+---
+
+## 🎬 YouTube Pitch Stefna
+
+### Innihald sem þú getur búið til:
+
+**Vídeó 1: "Ég bjó til leik fyrir tannlækninn minn"**
+- Sýna gameplay
+- Útskýra All-on-4® með leikjamyndrænum hætti
+- Link á madenta.is
+
+**Vídeó 2: "Madenta Ferðalag - Dagur 1"**
+- Skoðun í Budapest
+- Sýna raunverulegan Dr. Dávid
+- Spila leikinn á meðan þú bíður
+
+**Vídeó 3: "Eftir aðgerðina - Bráðabirgðabrú"**
+- Útskýra með leiknum hvað má borða
+- Sýna mjúka fæðu listann
+- Tengja við leiðbeiningarnar
+
+### Pitch til Madenta
+
+**Tölvupóstur til island@madenta.eu:**
+
+```
+Kæra Madenta,
+
+Ég er íslenskur viðskiptavinur ykkar sem er að fara í All-on-4® meðferð.
+
+Ég hef búið til fræðandi leik um ferlið (madenta.2076.is) og er að 
+skrá YouTube seriju um ferðalagið mitt.
+
+Mynduð þið hafa áhuga á að styrkja meðferðina mína í skiptum fyrir:
+- Gameplay vídeó með 10,000+ views
+- Link til madenta.is í öllum vídeóum  
+- Leikurinn sjálfur sem markaðstæki fyrir íslenska sjúklinga
+
+Takk,
+Ómar Örn Magnússon
+2076 ehf
 ```
 
-### Step 2: Deploy Pages
+---
 
-```bash
-npm run deploy
-```
+## 🎨 Branding Upplýsingar
 
-### Step 3: Deploy Workers API
+### Litir (Madenta Green)
+- Primary: `#10b981` (Emerald 500)
+- Dark: `#065f46` (Emerald 900)
+- Light: `#d1fae5` (Emerald 100)
 
-```bash
-npm run deploy:workers
-```
+### Týpógrafía
+- Font: Inter (Google Fonts)
+- Headings: 800 weight
+- Body: 600 weight
 
-### Step 4: Configure Custom Domain
-
-```
-Cloudflare Dashboard → Pages → madenta-broforce → Custom domains
-Add: madenta.2076.is
-```
+### Lógó
+Einfalt "MADENTA" text logo í hvítum boxi með emerald border
 
 ---
 
-## 🎯 DEVELOPMENT ROADMAP
+## 📊 Tæknilegar Upplýsingar
 
-### ✅ Phase 1: Foundation (COMPLETE)
-- Game engine architecture
-- Hero movement system
-- Basic combat mechanics
-- Level structure
-
-### 🔄 Phase 2: Content Production (IN PROGRESS)
-- [ ] All 7 hero sprite sheets
-- [ ] All villain sprite sheets  
-- [ ] 9 level backgrounds
-- [ ] 3 cutscene sequences
-- [ ] Sound effects & music
-
-### 📋 Phase 3: Features
-- [ ] Multiplayer co-op mode
-- [ ] Achievement system
-- [ ] Unlockable characters
-- [ ] Boss rush mode
-- [ ] Speedrun timer
-
-### 🚀 Phase 4: Polish & Launch
-- [ ] Performance optimization
-- [ ] Mobile touch controls
-- [ ] Gamepad support
-- [ ] Localization (IS/EN/HU)
-- [ ] Public beta launch
+- **Single HTML File**: Engar dependencies
+- **Canvas API**: 2D rendering
+- **Mobile Ready**: Touch controls
+- **Lightweight**: ~45KB (uncompressed)
+- **Framework**: Vanilla JS (no React/Vue)
 
 ---
 
-## 🎨 ASSET CREATION GUIDE
+## 🔗 Tenglar
 
-### Sprite Specifications
-- **Resolution:** 32×32 pixels
-- **Frames:** 8 per character (idle, run, jump, attack, etc.)
-- **Color Palette:** Love Island aesthetic
-  - Tanned skin: `#d4a574`, `#c49464`
-  - Neon accents: `#ff1493`, `#00ffff`, `#ffd700`
-  - Dental white: `#ffffff`, `#f0f0f0`
-
-### Background Specifications
-- **Resolution:** 800×600 pixels (or tileable)
-- **Style:** Pixel art with parallax layers
-- **Lighting:** Neon + dramatic shadows
+- **Live Demo**: madenta.2076.is (eftir deployment)
+- **Madenta IS**: https://madenta.is
+- **Madenta Budapest**: https://madenta-budapest.co.uk
+- **2076 ehf**: https://2076.is
 
 ---
 
-## 🤝 CONTRIBUTING
+## 📝 Næstu Skref
 
-This is a 2076 ehf production. For collaboration:
-- **Email:** omar@vertis.is
-- **Website:** https://omaromar.net
-- **Project:** https://madenta.2076.is
+### Fyrir YouTube Content:
+1. ✅ Deploy game to madenta.2076.is
+2. ⏳ Record gameplay walkthrough
+3. ⏳ Film consultation in Budapest
+4. ⏳ Edit vídeó með leik + raunveruleg footage
+5. ⏳ Pitch til Madenta með stats
 
----
-
-## 📜 LICENSE
-
-MIT License © 2076 ehf
-
----
-
-## 🎬 CREDITS
-
-**Game Design & Development:** 2076 ehf  
-**Creative Director:** Ómar Örn Magnússon  
-**Hero Character:** Dr. Dávid Farkas ([tandlogn.is](https://tandlogn.is))  
-**Madenta Team:** Gabriella, Ekaterina, Fruzsina, Petra, Flóra, Gunnar  
-**Villain Design:** Love Island-inspired archetypes  
-**Engine:** Phaser 3  
-**Deployment:** Cloudflare Developer Platform  
-
-**Special Thanks:**
-- All dental professionals fighting the good fight
-- The bacteria that make this game necessary  
-- Love Island Budapest for the aesthetic inspiration
-- Every patient who survived Full Arch Purge
+### Fyrir Pitch:
+1. ✅ Professional demo klárt
+2. ⏳ Fá Dr. Dávid approval (ef þörf)
+3. ⏳ Analytics setup (Cloudflare Web Analytics)
+4. ⏳ Social sharing buttons
+5. ⏳ Multilingual (EN, DK, NO)
 
 ---
 
-## 🐛 KNOWN ISSUES
+## 🏆 Árangur Metrics
 
-- Laughing Gas may cause real laughter
-- Ultimate ability too satisfying (not a bug)
-- Players report wanting to visit dentist after playing
-- Boss fights described as "unfairly glamorous"
+Fylgjast með:
+- **Page views** (Cloudflare Analytics)
+- **Avg. play time** (custom events)
+- **Share rate** (social media)
+- **Conversion** (clicks to madenta.is)
 
 ---
 
-**"When The Tooth Cartel strikes... Madenta strikes back."**
+## 👨‍💻 Höfundur
 
-🦷⚡ MADENTA: BROFORCE
+**Ómar Örn Magnússon**  
+2076 ehf - Invisible Systems  
+omar@2076.is
+
+**Með þökk til:**
+- Dr. Dávid Farkas (Madenta)
+- Dr. György Péter (Madenta)
+- Gunnar (Icelandic Coordinator)
+
+---
+
+## 📄 Leyfi
+
+Þetta er **pitch demo** fyrir Madenta tannlæknastofuna.  
+Öll Madenta branding og nöfn notuð með virðingu fyrir merkið.
+
+Leikurinn sjálfur er **MIT License** - Madenta getur notað hann ókeypis.
+
+---
+
+**Built with ❤️ by 2076 ehf**  
+*Invisible systems that make modern life effortless*

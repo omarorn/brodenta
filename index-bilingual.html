@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MADENTA: All-on-4 Élmény / Reynsla</title>
+    
+    <meta name="description" content="Tapasztald meg az All-on-4 fogbeültetési műtétet játékformában / Upplifðu All-on-4 tannplantaaðgerðina í leikjaformi">
+    <meta property="og:title" content="MADENTA: All-on-4 Játék">
+    <meta property="og:description" content="Oktatójáték a fogászati implantációról / Fræðandi leikur um tannplantaaðgerðir">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0a4d3c 0%, #064a38 100%);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 100vh;
+            max-height: 650px;
+            background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 3px solid #10b981;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hud-panel {
+            position: absolute;
+            pointer-events: none;
+            padding: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+
+        #top-left { top: 15px; left: 15px; }
+        #top-right { top: 15px; right: 15px; text-align: right; }
+
+        .stat-label { 
+            font-size: 11px; 
+            color: #064e3b; 
+            text-transform: uppercase; 
+            font-weight: 700; 
+            letter-spacing: 1.5px; 
+            margin-bottom: 5px;
+        }
+        
+        .stat-val { 
+            font-size: 28px; 
+            font-weight: 900; 
+            margin-bottom: 8px;
+            color: #065f46;
+        }
+
+        .bar-container {
+            width: 240px;
+            height: 14px;
+            background: rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+        
+        .bar-fill { 
+            height: 100%; 
+            transition: width 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        #success-fill { 
+            background: linear-gradient(90deg, #10b981, #059669); 
+            width: 100%;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        
+        #time-fill { 
+            background: linear-gradient(90deg, #3b82f6, #2563eb); 
+            width: 100%;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .madenta-logo {
+            position: absolute;
+            top: 20px;
+            right: 50%;
+            transform: translateX(50%);
+            font-size: 32px;
+            font-weight: 900;
+            color: #10b981;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+            pointer-events: none;
+            background: rgba(255,255,255,0.95);
+            padding: 10px 25px;
+            border-radius: 8px;
+            border: 2px solid #10b981;
+        }
+
+        #weapon-bar {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 12px;
+            border-radius: 16px;
+            pointer-events: auto;
+            border: 3px solid #10b981;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .weapon-slot {
+            width: 70px;
+            height: 75px;
+            border: 3px solid #d1d5db;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 10px;
+            background: white;
+            color: #374151;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .weapon-slot:hover {
+            transform: translateY(-3px);
+            border-color: #10b981;
+        }
+
+        .weapon-slot.active {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            color: #065f46;
+        }
+
+        .w-icon { font-size: 28px; margin-bottom: 5px; }
+        .w-label { font-size: 9px; text-align: center; line-height: 1.2; }
+        .w-key { color: #9ca3af; font-size: 8px; margin-top: 3px; }
+
+        #mobile-controls {
+            display: none;
+            width: 100%;
+            height: 130px;
+            background: linear-gradient(180deg, #064e3b, #065f46);
+            justify-content: space-between;
+            padding: 0 40px;
+            box-sizing: border-box;
+            align-items: center;
+            border-top: 3px solid #10b981;
+        }
+        
+        .mob-btn {
+            width: 80px; 
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border: 3px solid rgba(255,255,255,0.4);
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            user-select: none;
+            font-weight: 900;
+            backdrop-filter: blur(10px);
+            transition: all 0.1s;
+        }
+        
+        .mob-btn:active { 
+            background: rgba(255,255,255,0.4); 
+            border-color: #10b981;
+            transform: scale(0.95);
+        }
+        
+        #action-btn { 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            border-color: #065f46; 
+            width: 95px; 
+            height: 95px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.97), rgba(6, 95, 70, 0.97));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 100;
+            padding: 30px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        
+        .hidden { display: none !important; }
+        
+        button.btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; 
+            border: none;
+            padding: 18px 60px; 
+            font-size: 22px; 
+            font-family: inherit; 
+            font-weight: 800;
+            cursor: pointer; 
+            margin-top: 35px; 
+            border-radius: 50px;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button.btn-primary:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
+        }
+
+        button.btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+
+        button.btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: #10b981;
+        }
+
+        button.btn-secondary.selected {
+            background: #10b981;
+            border-color: #10b981;
+            font-weight: 800;
+        }
+
+        .edu-box {
+            text-align: left; 
+            max-width: 700px; 
+            background: rgba(255,255,255,0.1); 
+            padding: 30px; 
+            border-radius: 16px; 
+            font-size: 15px; 
+            line-height: 1.9; 
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(20px);
+            margin: 20px 0;
+        }
+
+        .highlight { color: #6ee7b7; font-weight: 700; }
+        .warning { color: #fbbf24; font-weight: 700; }
+
+        h1 { 
+            font-size: 48px; 
+            margin: 0 0 15px 0; 
+            color: #d1fae5;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #a7f3d0;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 20px;
+        }
+
+        /* Language Toggle */
+        #lang-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 5px;
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #10b981;
+            border-radius: 25px;
+            padding: 5px;
+            z-index: 10;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #065f46;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .lang-btn.active {
+            background: #10b981;
+            color: white;
+        }
+
+        .lang-btn:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        #sound-toggle {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #10b981;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        #sound-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+        }
+
+        @media (max-width: 900px) {
+            #mobile-controls { display: flex; }
+            #game-wrapper { 
+                height: calc(100vh - 130px); 
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+            .w-key { display: none; }
+            .madenta-logo { font-size: 24px; padding: 8px 20px; }
+            h1 { font-size: 36px; }
+            .edu-box { font-size: 13px; padding: 20px; }
+            #lang-toggle { top: 10px; left: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-wrapper">
+        <canvas id="gameCanvas" width="900" height="650"></canvas>
+
+        <!-- Language Toggle -->
+        <div id="lang-toggle">
+            <button class="lang-btn active" onclick="setLanguage('is')" id="lang-is">🇮🇸 IS</button>
+            <button class="lang-btn" onclick="setLanguage('hu')" id="lang-hu">🇭🇺 HU</button>
+        </div>
+
+        <div id="sound-toggle" onclick="toggleSound()" title="Sound On/Off">🔊</div>
+
+        <div class="madenta-logo">MADENTA</div>
+
+        <div id="top-left" class="hud-panel">
+            <div class="stat-label" id="label-success">ÁRANGUR AÐGERÐAR</div>
+            <div class="bar-container"><div id="success-fill" class="bar-fill"></div></div>
+            <div class="stat-label" id="label-time">TÍMI EFTIR</div>
+            <div class="bar-container"><div id="time-fill" class="bar-fill"></div></div>
+        </div>
+
+        <div id="top-right" class="hud-panel">
+            <div class="stat-label" id="label-value">HEILDARVIRÐI</div>
+            <div class="stat-val" style="color: #10b981;" id="score-val">0 €</div>
+            <div class="stat-label" id="label-teeth">TENNUR EFTIR</div>
+            <div class="stat-val" id="teeth-val">28</div>
+        </div>
+
+        <div id="weapon-bar">
+            <div class="weapon-slot active" onclick="setTool(0)" id="slot-0">
+                <div class="w-icon">🔷</div>
+                <div class="w-label" id="tool-0-label">BORA</div>
+                <div class="w-key">1</div>
+            </div>
+            <div class="weapon-slot" onclick="setTool(1)" id="slot-1">
+                <div class="w-icon">🔨</div>
+                <div class="w-label" id="tool-1-label">MYLLARI</div>
+                <div class="w-key">2</div>
+            </div>
+            <div class="weapon-slot" onclick="setTool(2)" id="slot-2">
+                <div class="w-icon">⚡</div>
+                <div class="w-label" id="tool-2-label">LASER</div>
+                <div class="w-key">3</div>
+            </div>
+            <div class="weapon-slot" onclick="setTool(3)" id="slot-3">
+                <div class="w-icon">🌀</div>
+                <div class="w-label" id="tool-3-label">SOG</div>
+                <div class="w-key">4</div>
+            </div>
+            <div class="weapon-slot" onclick="setTool(4)" id="slot-4">
+                <div class="w-icon">🔩</div>
+                <div class="w-label" id="tool-4-label">PLANTA</div>
+                <div class="w-key">5</div>
+            </div>
+        </div>
+
+        <div id="overlay">
+            <h1 id="title-main">MADENTA: All-on-4 Reynslan</h1>
+            <p class="subtitle" id="subtitle-main">Fræðandi leikur um tannplantaaðgerðir</p>
+            
+            <div class="edu-box" id="content-main">
+                <!-- Content populated by JS based on language -->
+            </div>
+            
+            <button class="btn-primary" onclick="startGame()" id="btn-start">HEFJA AÐGERÐ</button>
+            
+            <div class="footer">
+                <span id="footer-text">Með Dr. Dávid Farkas</span> | <a href="https://madenta.is" target="_blank" style="color: #6ee7b7;">madenta.is</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobile-controls">
+        <div style="display: flex; gap: 25px;">
+            <div class="mob-btn" id="left-btn">←</div>
+            <div class="mob-btn" id="right-btn">→</div>
+        </div>
+        <div class="mob-btn" id="action-btn">⚕️</div>
+    </div>
+
+<script>
+    // TRANSLATION SYSTEM
+    const TRANSLATIONS = {
+        is: {
+            title: "MADENTA: All-on-4 Reynslan",
+            subtitle: "Fræðandi leikur um tannplantaaðgerðir",
+            tools: ["BORA", "MYLLARI", "LASER", "SOG", "PLANTA"],
+            labels: {
+                success: "ÁRANGUR AÐGERÐAR",
+                time: "TÍMI EFTIR",
+                value: "HEILDARVIRÐI",
+                teeth: "TENNUR EFTIR"
+            },
+            menu: {
+                difficulty: "🦷 Veldu erfiðleikastig:",
+                easy: "🟢 AUÐVELT",
+                normal: "🟡 VENJULEGT",
+                hard: "🔴 ERFITT",
+                learn: "📚 Lærðu um All-on-4®:",
+                tool1: "<b>1. 🔷 BORA (1):</b> Fjarlægir venjulegar tennur. Virkar ekki á harðar tennur.",
+                tool2: "<b>2. 🔨 MYLLARI (2):</b> <span class='highlight'>AÐEINS fyrir harðar tennur (dökkgráar).</span><br>&nbsp;&nbsp;&nbsp;<span class='warning'>⚠️ ATH: Malaður bein skapar mikla úrgang!</span>",
+                tool3: "<b>3. ⚡ LASER (3):</b> Eyðir bakteríum (Peri-implantitis forvörn).",
+                tool4: "<b>4. 🌀 SOG (4):</b> Hreinsar úrgang og heldur svæði sótthreinu.",
+                tool5: "<b>5. 🔩 TANNPLANTA (5):</b> <span class='highlight'>Haltu inni í 3 sek yfir tómum gómum</span> til að setja inn títanímplant.",
+                goal: "<b style='color: #6ee7b7;'>Markmið:</b> Fjarlægja allar 28 tennur og setja títanímpplantar í staðinn.<br><b style='color: #6ee7b7;'>Þetta er All-on-4® meðferðin!</b>"
+            },
+            btnStart: "HEFJA AÐGERÐ",
+            footer: "Með Dr. Dávid Farkas",
+            win: "ÁRANGUR!",
+            lose: "MISTÓKST",
+            timeout: "TÍMINN RANN ÚT!",
+            failed: "AÐGERÐ MISTÓKST - OF MARGIR VILLUR",
+            success: "ALLAR PLANTAÐAR - ALL-ON-4 TÓKST!"
+        },
+        hu: {
+            title: "MADENTA: All-on-4 Élmény",
+            subtitle: "Oktató játék a fogbeültetésről",
+            tools: ["FÚRÓ", "ZÚZÓ", "LÉZER", "SZÍVÓ", "IMPLANT"],
+            labels: {
+                success: "MŰTÉT SIKERESSÉGE",
+                time: "HÁTRALÉVŐ IDŐ",
+                value: "TELJES ÉRTÉK",
+                teeth: "HÁTRALÉVŐ FOGAK"
+            },
+            menu: {
+                difficulty: "🦷 Válassz nehézségi szintet:",
+                easy: "🟢 KÖNNYŰ",
+                normal: "🟡 NORMÁL",
+                hard: "🔴 NEHÉZ",
+                learn: "📚 Tudj meg többet az All-on-4®-ről:",
+                tool1: "<b>1. 🔷 FÚRÓ (1):</b> Normál fogak eltávolítása. Nem működik kemény fogakon.",
+                tool2: "<b>2. 🔨 ZÚZÓ (2):</b> <span class='highlight'>CSAK kemény fogakhoz (sötétszürke).</span><br>&nbsp;&nbsp;&nbsp;<span class='warning'>⚠️ FIGYELEM: A zúzás sok törmeléket okoz!</span>",
+                tool3: "<b>3. ⚡ LÉZER (3):</b> Baktériumok elpusztítása (Peri-implantitis megelőzés).",
+                tool4: "<b>4. 🌀 SZÍVÓ (4):</b> Törmelék és váladék eltávolítása, steril környezet fenntartása.",
+                tool5: "<b>5. 🔩 IMPLANT (5):</b> <span class='highlight'>Tartsd nyomva 3 másodpercig</span> az üres ínyen a titán implantátum behelyezéséhez.",
+                goal: "<b style='color: #6ee7b7;'>Cél:</b> Mind a 28 fog eltávolítása és titán implantátumok behelyezése.<br><b style='color: #6ee7b7;'>Ez az All-on-4® kezelés!</b>"
+            },
+            btnStart: "MŰTÉT INDÍTÁSA",
+            footer: "Dr. Dávid Farkas vezetésével",
+            win: "SIKER!",
+            lose: "SIKERTELEN",
+            timeout: "AZ IDŐ LEJÁRT!",
+            failed: "MŰTÉT SIKERTELEN - TÚLSÁGOSAN SOK HIBA",
+            success: "ÖSSZES BEHELYEZVE - ALL-ON-4 SIKERES!"
+        }
+    };
+
+    let currentLang = 'is';
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        
+        // Update button states
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('lang-' + lang).classList.add('active');
+        
+        // Update UI
+        updateLanguage();
+    }
+
+    function t(key) {
+        const keys = key.split('.');
+        let value = TRANSLATIONS[currentLang];
+        for(let k of keys) {
+            value = value[k];
+        }
+        return value || key;
+    }
+
+    function updateLanguage() {
+        // Title and subtitle
+        document.getElementById('title-main').innerText = t('title');
+        document.getElementById('subtitle-main').innerText = t('subtitle');
+        
+        // Tool labels
+        for(let i=0; i<5; i++) {
+            document.getElementById(`tool-${i}-label`).innerText = t('tools')[i];
+        }
+        
+        // HUD labels
+        document.getElementById('label-success').innerText = t('labels.success');
+        document.getElementById('label-time').innerText = t('labels.time');
+        document.getElementById('label-value').innerText = t('labels.value');
+        document.getElementById('label-teeth').innerText = t('labels.teeth');
+        
+        // Menu content
+        const menuHTML = `
+            <b style="font-size: 18px; color: #d1fae5;">${t('menu.difficulty')}</b><br><br>
+            
+            <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0; flex-wrap: wrap;">
+                <button class="btn-secondary" onclick="setDifficulty('easy')">${t('menu.easy')}</button>
+                <button class="btn-secondary selected" onclick="setDifficulty('normal')">${t('menu.normal')}</button>
+                <button class="btn-secondary" onclick="setDifficulty('hard')">${t('menu.hard')}</button>
+            </div>
+
+            <b style="font-size: 16px; color: #d1fae5;">${t('menu.learn')}</b><br><br>
+            
+            ${t('menu.tool1')}<br>
+            ${t('menu.tool2')}<br><br>
+            ${t('menu.tool3')}<br><br>
+            ${t('menu.tool4')}<br><br>
+            ${t('menu.tool5')}<br><br>
+            
+            ${t('menu.goal')}
+        `;
+        
+        document.getElementById('content-main').innerHTML = menuHTML;
+        document.getElementById('btn-start').innerText = t('btnStart');
+        document.getElementById('footer-text').innerText = t('footer');
+    }
+
+    // Initialize language
+    updateLanguage();
+
+    // [REST OF GAME CODE FROM ORIGINAL VERSION]
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Sound system (simplified for space)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let soundEnabled = true;
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        document.getElementById('sound-toggle').innerText = soundEnabled ? '🔊' : '🔇';
+    }
+
+    function playSound(type) {
+        if (!soundEnabled) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const sounds = {
+            drill: [800, 'sawtooth', 0.1, 0.1],
+            crush: [150, 'square', 0.2, 0.2],
+            laser: [1200, 'sine', 0.15, 0.15],
+            success: [600, 'sine', 0.2, 0.3]
+        };
+
+        const [freq, waveType, gainVal, duration] = sounds[type] || [440, 'sine', 0.1, 0.1];
+        osc.frequency.value = freq;
+        osc.type = waveType;
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    // Game state
+    const TOTAL_TEETH = 28;
+    const MAX_SUCCESS = 100;
+    let gameState = 'MENU';
+    let money = 0;
+    let successRate = MAX_SUCCESS;
+    let timeLeft = 300;
+    let currentTool = 0;
+    let frame = 0;
+    let currentDifficulty = 'normal';
+
+    const player = { x: 425, y: 550, w: 50, h: 50, speed: 8 };
+    let teeth = [];
+    let germs = [];
+    let debris = [];
+    let projectiles = [];
+    let particles = [];
+    let floatText = [];
+    let implantProgress = 0;
+    let isImplanting = false;
+
+    const keys = { ArrowLeft: false, ArrowRight: false, Space: false };
+
+    function setDifficulty(diff) {
+        currentDifficulty = diff;
+        document.querySelectorAll('.btn-secondary').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        event.target.classList.add('selected');
+    }
+
+    function initGame() {
+        money = 0;
+        successRate

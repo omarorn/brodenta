@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MADENTA: All-on-4 - Advanced Pixel Art</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Press Start 2P', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #00ff00;
+        }
+        #game-container {
+            position: relative;
+            width: 900px;
+            height: 650px;
+            background: linear-gradient(135deg, #0f3460, #16213e);
+            border: 8px solid #10b981;
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.5),
+                        inset 0 0 40px rgba(0,0,0,0.7);
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+            font-size: 10px;
+            text-shadow: 0 0 5px currentColor;
+            z-index: 10;
+        }
+        .hud-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .hud-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hud-label { color: #10b981; }
+        .hud-value { 
+            color: #00ff00;
+            font-size: 12px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        .health-bar {
+            width: 150px;
+            height: 12px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #10b981;
+            position: relative;
+            margin-left: 10px;
+        }
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+            transition: width 0.3s;
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.3);
+        }
+        #weapon-bar {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border: 4px solid #10b981;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+            z-index: 10;
+        }
+        .weapon-slot {
+            width: 70px;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.9);
+            border: 3px solid #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+        .weapon-slot:hover {
+            transform: translateY(-8px);
+            border-color: #10b981;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        .weapon-slot.active {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.15);
+            box-shadow: 0 0 30px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.2);
+            transform: translateY(-10px) scale(1.1);
+        }
+        .weapon-key {
+            position: absolute;
+            bottom: 3px;
+            font-size: 8px;
+            color: #6b7280;
+        }
+        .weapon-slot.active .weapon-key {
+            color: #00ff00;
+        }
+        #lang-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        .lang-btn {
+            padding: 8px 14px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #10b981;
+            color: #10b981;
+            cursor: pointer;
+            font-size: 8px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+        .lang-btn.active {
+            background: #10b981;
+            color: #000;
+            box-shadow: 0 0 15px #10b981;
+        }
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.85), rgba(0,0,0,0.98));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 40px;
+            text-align: center;
+        }
+        .hidden { display: none !important; }
+        h1 {
+            color: #10b981;
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px #10b981, 0 0 40px #10b981;
+            animation: glow 2s ease-in-out infinite;
+        }
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #10b981, 0 0 40px #10b981; }
+            50% { text-shadow: 0 0 30px #00ff00, 0 0 60px #00ff00; }
+        }
+        .subtitle {
+            color: #00ff00;
+            font-size: 11px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        .instructions {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid #10b981;
+            padding: 25px;
+            max-width: 650px;
+            color: #10b981;
+            font-size: 9px;
+            line-height: 18px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .instructions h3 {
+            color: #00ff00;
+            margin-bottom: 15px;
+            font-size: 11px;
+        }
+        .btn-start {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #000;
+            border: 4px solid #00ff00;
+            padding: 18px 50px;
+            font-size: 16px;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 0 30px #10b981;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+        .btn-start:hover {
+            background: linear-gradient(135deg, #00ff00, #10b981);
+            transform: scale(1.1);
+            box-shadow: 0 0 50px #00ff00;
+        }
+        .madenta-logo {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            font-size: 20px;
+            color: #10b981;
+            text-shadow: 0 0 15px #10b981;
+            z-index: 10;
+            animation: pulse 3s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+            z-index: 15;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="900" height="650"></canvas>
+        <div class="scan-line"></div>
+        
+        <div class="madenta-logo">◢ MADENTA ◣</div>
+        
+        <div id="lang-toggle">
+            <button class="lang-btn active" onclick="setLang('is')">🇮🇸 IS</button>
+            <button class="lang-btn" onclick="setLang('hu')">🇭🇺 HU</button>
+        </div>
+        
+        <div id="hud">
+            <div class="hud-grid">
+                <div class="hud-item">
+                    <span class="hud-label">SCORE:</span>
+                    <span class="hud-value" id="score">€0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">TEETH LEFT:</span>
+                    <span class="hud-value" id="teeth">28/28</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">SUCCESS:</span>
+                    <div class="health-bar">
+                        <div class="health-fill" id="success-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">TIME:</span>
+                    <span class="hud-value" id="time">5:00</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="weapon-bar">
+            <div class="weapon-slot active" onclick="selectWeapon(0)">
+                <div>🔷</div>
+                <div class="weapon-key">1</div>
+            </div>
+            <div class="weapon-slot" onclick="selectWeapon(1)">
+                <div>🔨</div>
+                <div class="weapon-key">2</div>
+            </div>
+            <div class="weapon-slot" onclick="selectWeapon(2)">
+                <div>⚡</div>
+                <div class="weapon-key">3</div>
+            </div>
+            <div class="weapon-slot" onclick="selectWeapon(3)">
+                <div>🌀</div>
+                <div class="weapon-key">4</div>
+            </div>
+            <div class="weapon-slot" onclick="selectWeapon(4)">
+                <div>🔩</div>
+                <div class="weapon-key">5</div>
+            </div>
+        </div>
+        
+        <div id="overlay">
+            <h1 id="title">▼ MADENTA: ALL-ON-4 ▼</h1>
+            <p class="subtitle" id="subtitle">RETRO PIXEL ART SURGERY SIMULATOR</p>
+            
+            <div class="instructions">
+                <h3 id="inst-title">► MISSION BRIEFING</h3>
+                <div id="instructions">
+                    <p><span style="color:#00ff00">■</span> PLAY AS DR. DÁVID FARKAS</p>
+                    <p><span style="color:#00ff00">■</span> EXTRACT ALL 28 TEETH</p>
+                    <p><span style="color:#00ff00">■</span> PLACE TITANIUM IMPLANTS</p>
+                    <p><span style="color:#00ff00">■</span> DESTROY PERI-IMPLANTITIS BACTERIA</p>
+                    <p><span style="color:#00ff00">■</span> MAINTAIN 98% SUCCESS RATE</p>
+                    <br>
+                    <p style="color:#3b82f6">► CONTROLS:</p>
+                    <p>WASD / ARROWS = MOVE</p>
+                    <p>SPACE = FIRE WEAPON</p>
+                    <p>1-5 = SELECT TOOL</p>
+                </div>
+            </div>
+            
+            <button class="btn-start" onclick="startGame()" id="btn-start">▶ START SURGERY</button>
+            
+            <p style="font-size:8px; color:#6b7280; margin-top:20px;">
+                madenta.is • Dr. Dávid Farkas • Budapest
+            </p>
+        </div>
+    </div>
+
+<script>
+// ADVANCED PIXEL ART MADENTA GAME
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+// LANGUAGE
+const LANG = {
+    is: {
+        title: "▼ MADENTA: ALL-ON-4 ▼",
+        subtitle: "RETRO TANNLÆKNINGALEIKUR",
+        instTitle: "► VERKEFNISLÝSING",
+        instructions: `
+            <p><span style="color:#00ff00">■</span> SPILAÐU SEM DR. DÁVID FARKAS</p>
+            <p><span style="color:#00ff00">■</span> FJARLÆGÐU ALLAR 28 TENNURNAR</p>
+            <p><span style="color:#00ff00">■</span> SETTU TÍTANÍMPPLANTUR</p>
+            <p><span style="color:#00ff00">■</span> EYÐDU BAKTERÍUM (PERI-IMPLANTITIS)</p>
+            <p><span style="color:#00ff00">■</span> HALTU 98% ÁRANGRI</p>
+            <br>
+            <p style="color:#3b82f6">► STJÓRNUN:</p>
+            <p>WASD / ÖRVAR = HREYFA</p>
+            <p>SPACE = SKJÓTA</p>
+            <p>1-5 = VELJA VERKFÆRI</p>
+        `,
+        btnStart: "▶ HEFJA AÐGERÐ"
+    },
+    hu: {
+        title: "▼ MADENTA: ALL-ON-4 ▼",
+        subtitle: "RETRO FOGÁSZATI SZIMULÁTOR",
+        instTitle: "► KÜLDETÉS BRIEFING",
+        instructions: `
+            <p><span style="color:#00ff00">■</span> JÁTSSZ DR. DÁVID FARKASKÉNT</p>
+            <p><span style="color:#00ff00">■</span> TÁVOLÍTSD EL MIND A 28 FOGAT</p>
+            <p><span style="color:#00ff00">■</span> HELYEZZ BE TITÁN IMPLANTÁTUMOKAT</p>
+            <p><span style="color:#00ff00">■</span> PUSZTÍTSD EL A BAKTÉRIUMOKAT</p>
+            <p><span style="color:#00ff00">■</span> TARTSD FENN A 98% SIKERT</p>
+            <br>
+            <p style="color:#3b82f6">► IRÁNYÍTÁS:</p>
+            <p>WASD / NYILAK = MOZGÁS</p>
+            <p>SPACE = TÜZELÉS</p>
+            <p>1-5 = ESZKÖZ VÁLASZTÁS</p>
+        `,
+        btnStart: "▶ MŰTÉT INDÍTÁSA"
+    }
+};
+
+let lang = 'is';
+function setLang(l) {
+    lang = l;
+    document.querySelectorAll('.lang-btn').forEach((b,i) => {
+        b.classList.toggle('active', (i===0 && l==='is') || (i===1 && l==='hu'));
+    });
+    document.getElementById('title').innerText = LANG[l].title;
+    document.getElementById('subtitle').innerText = LANG[l].subtitle;
+    document.getElementById('inst-title').innerText = LANG[l].instTitle;
+    document.getElementById('instructions').innerHTML = LANG[l].instructions;
+    document.getElementById('btn-start').innerText = LANG[l].btnStart;
+}
+
+// GAME STATE
+let state = 'MENU';
+let score = 0;
+let teeth = 28;
+let success = 100;
+let time = 300;
+let weapon = 0;
+let frame = 0;
+
+// PLAYER
+const player = {
+    x: 100, y: 500, w: 48, h: 64,
+    vx: 0, speed: 5,
+    shootCooldown: 0
+};
+
+// ENTITIES
+const targets = [];
+const projectiles = [];
+const particles = [];
+
+// Generate teeth
+for(let i=0; i<28; i++) {
+    targets.push({
+        x: 250 + (i%7)*85,
+        y: 120 + Math.floor(i/7)*90,
+        w: 50, h: 50,
+        type: Math.random() < 0.25 ? 'hard' : 'normal',
+        hp: Math.random() < 0.25 ? 2 : 1,
+        alive: true
+    });
+}
+
+// INPUT
+const keys = {};
+addEventListener('keydown', e => keys[e.key] = true);
+addEventListener('keyup', e => keys[e.key] = false);
+addEventListener('keydown', e => {
+    if(e.key >= '1' && e.key <= '5') selectWeapon(parseInt(e.key)-1);
+});
+
+function selectWeapon(id) {
+    weapon = id;
+    document.querySelectorAll('.weapon-slot').forEach((s,i) => {
+        s.classList.toggle('active', i === id);
+    });
+}
+
+function startGame() {
+    document.getElementById('overlay').classList.add('hidden');
+    state = 'PLAY';
+    loop();
+}
+
+function createPart(x, y, color, n=10) {
+    for(let i=0; i<n; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random()-0.5)*6,
+            vy: (Math.random()-0.5)*6 - 2,
+            life: 40,
+            color
+        });
+    }
+}
+
+function loop() {
+    if(state !== 'PLAY') return;
+    frame++;
+    
+    // CLEAR
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#0f3460');
+    gradient.addColorStop(1, '#16213e');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // GRID
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.08)';
+    ctx.lineWidth = 1;
+    for(let x=0; x<canvas.width; x+=40) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for(let y=0; y<canvas.height; y+=40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+    
+    // UPDATE PLAYER
+    if(keys['a'] || keys['A'] || keys['ArrowLeft']) player.vx = -player.speed;
+    else if(keys['d'] || keys['D'] || keys['ArrowRight']) player.vx = player.speed;
+    else player.vx = 0;
+    
+    player.x += player.vx;
+    player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
+    
+    if(player.shootCooldown > 0) player.shootCooldown--;
+    
+    if((keys[' '] || keys['Space']) && player.shootCooldown === 0) {
+        projectiles.push({
+            x: player.x + player.w/2,
+            y: player.y + 20,
+            vx: 10,
+            type: weapon,
+            life: 70
+        });
+        player.shootCooldown = 12;
+        createPart(player.x + player.w/2, player.y + 20, weapon === 2 ? '#00ff00' : '#3b82f6', 5);
+    }
+    
+    // DRAW TEETH
+    targets.forEach(t => {
+        if(!t.alive) return;
+        
+        ctx.fillStyle = t.type === 'hard' ? '#374151' : '#e5e7eb';
+        ctx.fillRect(t.x, t.y, t.w, t.h);
+        
+        ctx.strokeStyle = t.type === 'hard' ? '#1f2937' : '#9ca3af';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(t.x, t.y, t.w, t.h);
+        
+        // Tooth crown
+        ctx.fillStyle = t.type === 'hard' ? '#4b5563' : '#f3f4f6';
+        ctx.fillRect(t.x+5, t.y+5, t.w-10, 15);
+        
+        // HP indicator
+        if(t.hp > 1) {
+            ctx.fillStyle = '#ef4444';
+            for(let i=0; i<t.hp; i++) {
+                ctx.fillRect(t.x+8+i*12, t.y+25, 8, 8);
+            }
+        }
+    });
+    
+    // UPDATE PROJECTILES
+    projectiles.forEach((p, i) => {
+        p.x += p.vx;
+        p.life--;
+        
+        targets.forEach(t => {
+            if(!t.alive || p.life <= 0) return;
+            if(p.x > t.x && p.x < t.x+t.w && p.y > t.y && p.y < t.y+t.h) {
+                if(p.type === 0 && t.type === 'hard') {
+                    createPart(p.x, p.y, '#ef4444', 12);
+                    p.life = 0;
+                    return;
+                }
+                t.hp--;
+                if(t.hp <= 0) {
+                    t.alive = false;
+                    teeth--;
+                    score += t.type === 'hard' ? 200 : 120;
+                    createPart(t.x+25, t.y+25, '#10b981', 20);
+                }
+                p.life = 0;
+            }
+        });
+        
+        if(p.life <= 0 || p.x > canvas.width) projectiles.splice(i, 1);
+    });
+    
+    // DRAW PROJECTILES
+    ctx.save();
+    projectiles.forEach(p => {
+        const colors = ['#3b82f6', '#6b7280', '#00ff00', '#60a5fa', '#10b981'];
+        ctx.fillStyle = colors[p.type];
+        if(p.type === 2) {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#00ff00';
+        }
+        ctx.fillRect(p.x-5, p.y-5, 10, 10);
+        
+        // Trail
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(p.x-10, p.y-3, 6, 6);
+        ctx.globalAlpha = 1;
+    });
+    ctx.restore();
+    
+    // UPDATE PARTICLES
+    particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.2;
+        p.life--;
+        if(p.life <= 0) particles.splice(i, 1);
+    });
+    
+    // DRAW PARTICLES
+    particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.life / 40;
+        ctx.fillRect(p.x-3, p.y-3, 6, 6);
+    });
+    ctx.globalAlpha = 1;
+    
+    // DRAW PLAYER (PIXEL ART DR. DÁVID)
+    ctx.save();
+    // Head
+    ctx.fillStyle = '#d4a574';
+    ctx.fillRect(player.x+12, player.y+6, 24, 18);
+    // Sunglasses
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(player.x+14, player.y+12, 20, 6);
+    // Hair
+    ctx.fillStyle = '#4a3728';
+    ctx.fillRect(player.x+12, player.y+4, 24, 8);
+    // Body (Madenta purple)
+    ctx.fillStyle = '#7b2d7e';
+    ctx.fillRect(player.x+10, player.y+24, 28, 20);
+    // Arms
+    ctx.fillStyle = '#d4a574';
+    ctx.fillRect(player.x+6, player.y+28, 6, 14);
+    ctx.fillRect(player.x+36, player.y+28, 6, 14);
+    // Weapon in hand
+    if(weapon === 2) { // Laser
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(player.x+42, player.y+32, 18, 6);
+        ctx.fillStyle = '#00ff00';
+        ctx.fillRect(player.x+56, player.y+30, 4, 10);
+    }
+    // Legs
+    ctx.fillStyle = '#9ca3af';
+    ctx.fillRect(player.x+14, player.y+44, 8, 16);
+    ctx.fillRect(player.x+26, player.y+44, 8, 16);
+    // Shoes
+    ctx.fillStyle = '#1f2937';
+    ctx.fillRect(player.x+12, player.y+60, 10, 4);
+    ctx.fillRect(player.x+26, player.y+60, 10, 4);
+    ctx.restore();
+    
+    // UPDATE HUD
+    document.getElementById('score').innerText = `€${score}`;
+    document.getElementById('teeth').innerText = `${teeth}/28`;
+    document.getElementById('success-bar').style.width = success + '%';
+    const mins = Math.floor(time / 60);
+    const secs = Math.floor(time % 60);
+    document.getElementById('time').innerText = `${mins}:${secs.toString().padStart(2,'0')}`;
+    
+    time -= 0.016;
+    if(time <= 0 || teeth === 0) {
+        alert(teeth === 0 ? 'SUCCESS!' : 'TIME UP!');
+        state = 'OVER';
+        return;
+    }
+    
+    requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
